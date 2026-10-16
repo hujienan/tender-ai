@@ -1,0 +1,292 @@
+{
+  "datasetId": "synthetic-electrical-2026-01",
+  "currency": "AUD",
+  "notice": "All organisations, people, identifiers, projects and prices are fictional.",
+  "criteria": [
+    {
+      "id": "price",
+      "name": "Whole-of-contract price",
+      "weight": 30,
+      "source": { "documentId": "tender", "page": 2, "quote": "C1 Whole-of-contract price: 30%. Assess the ex-GST lump sum and exclusions." }
+    },
+    {
+      "id": "method",
+      "name": "Electrical methodology and safety",
+      "weight": 25,
+      "source": { "documentId": "tender", "page": 2, "quote": "C2 Electrical methodology and safety: 25%. Assess staging, testing and WHS." }
+    },
+    {
+      "id": "programme",
+      "name": "Delivery programme",
+      "weight": 20,
+      "source": { "documentId": "tender", "page": 2, "quote": "C3 Delivery programme: 20%. Assess duration and credible milestones." }
+    },
+    {
+      "id": "capability",
+      "name": "Relevant capability and qualifications",
+      "weight": 15,
+      "source": { "documentId": "tender", "page": 2, "quote": "C4 Relevant capability and qualifications: 15%. Assess licences and references." }
+    },
+    {
+      "id": "warranty",
+      "name": "Warranty and delivery risk",
+      "weight": 10,
+      "source": { "documentId": "tender", "page": 2, "quote": "C5 Warranty and delivery risk: 10%. Assess terms and evidence gaps." }
+    }
+  ],
+  "suppliers": [
+    { "id": "voltline", "name": "Voltline Projects Pty Ltd", "documentId": "voltline" },
+    { "id": "sparrow", "name": "Sparrow Electrical Services Pty Ltd", "documentId": "sparrow" },
+    { "id": "arcwell", "name": "Arcwell Infrastructure Pty Ltd", "documentId": "arcwell" }
+  ],
+  "documents": [
+    {
+      "id": "tender",
+      "file": "pdfs/tender-request.pdf",
+      "title": "North Quay Training Centre - Electrical Installation Tender",
+      "pages": [
+        {
+          "heading": "1. Invitation and scope",
+          "lines": [
+            "Tender ID: NQTC-ELEC-2026-01. Issued: 16 October 2026.",
+            "Client: North Quay Training Centre (fictional). Site: Lot 18, North Quay, WA.",
+            "Scope: supply and install LV distribution, lighting, emergency lighting and cabling.",
+            "Include switchboard upgrades, testing, commissioning and as-built drawings.",
+            "Work must maintain safe access to the occupied training buildings.",
+            "Tender closes: 13 November 2026 at 4:00 pm AWST.",
+            "Anticipated site access: 11 January 2027.",
+            "Required practical completion: no later than 28 May 2027.",
+            "Submit one ex-GST lump sum in AUD and a week-by-week programme.",
+            "This is a synthetic evaluation exercise; no real procurement is taking place."
+          ]
+        },
+        {
+          "heading": "2. Evaluation and submission requirements",
+          "lines": [
+            "C1 Whole-of-contract price: 30%. Assess the ex-GST lump sum and exclusions.",
+            "C2 Electrical methodology and safety: 25%. Assess staging, testing and WHS.",
+            "C3 Delivery programme: 20%. Assess duration and credible milestones.",
+            "C4 Relevant capability and qualifications: 15%. Assess licences and references.",
+            "C5 Warranty and delivery risk: 10%. Assess terms and evidence gaps.",
+            "Provide an electrical contractor licence and named site supervisor qualifications.",
+            "Provide two comparable project references completed in the last five years.",
+            "Attach current public liability and workers compensation insurance certificates.",
+            "State warranty duration, start date, scope and any exclusions.",
+            "Unverified claims and conflicting dates must be flagged for clarification."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "voltline",
+      "file": "pdfs/voltline-proposal.pdf",
+      "title": "Voltline Projects - Proposal",
+      "pages": [
+        {
+          "heading": "1. Commercial offer",
+          "lines": [
+            "Supplier: Voltline Projects Pty Ltd (fictional).",
+            "Tender ID: NQTC-ELEC-2026-01. Proposal dated: 10 November 2026.",
+            "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings.",
+            "Proposed duration: 18 weeks from site access on 11 January 2027.",
+            "Commercial offer completion date: 21 May 2027.",
+            "Workmanship warranty: 24 months from practical completion.",
+            "Method: isolate one building at a time; provide temporary lighting.",
+            "Testing: insulation, RCD and emergency lighting results before handover."
+          ]
+        },
+        {
+          "heading": "2. Team, programme and attachments",
+          "lines": [
+            "Electrical contractor licence: SYN-EC-101 (fictional training identifier).",
+            "Site supervisor: Mara Vale; unrestricted electrical licence SYN-EL-101.",
+            "Supervisor qualification: Diploma of Electrical Engineering (2021).",
+            "Comparable works: Eastbank Library upgrade (2024); Harbor Annex fit-out (2025).",
+            "Programme milestone practical completion: 17 May 2027.",
+            "Public liability cover: AUD 20 million; certificate not attached.",
+            "Workers compensation certificate: attached as a declared copy.",
+            "Clarification contact: tenderdesk@voltline.example."
+          ]
+        },
+        {
+          "heading": "3. Workers compensation attachment",
+          "lines": [
+            "SYNTHETIC CERTIFICATE COPY - not valid insurance evidence outside this fixture.",
+            "Insured: Voltline Projects Pty Ltd (fictional).",
+            "Cover: workers compensation; synthetic policy SYN-WC-101.",
+            "Declared period: 1 January 2026 to 31 December 2027.",
+            "Public liability certificate: not included in this proposal."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sparrow",
+      "file": "pdfs/sparrow-proposal.pdf",
+      "title": "Sparrow Electrical Services - Proposal",
+      "pages": [
+        {
+          "heading": "1. Commercial offer",
+          "lines": [
+            "Supplier: Sparrow Electrical Services Pty Ltd (fictional).",
+            "Tender ID: NQTC-ELEC-2026-01. Proposal dated: 11 November 2026.",
+            "Ex-GST lump sum: AUD 1,327,500; no exclusions listed.",
+            "Proposed duration: 16 weeks from site access on 11 January 2027.",
+            "Target practical completion: 3 May 2027.",
+            "Warranty: 36 months, subject to manufacturer terms and exclusions to be agreed.",
+            "Method: prefabricate switchboard sections before the first shutdown.",
+            "Testing: staged energisation and witnessed commissioning records."
+          ]
+        },
+        {
+          "heading": "2. Team and attachments",
+          "lines": [
+            "Electrical contractor licence: SYN-EC-202 (fictional training identifier).",
+            "Site supervisor: Theo Marsh; unrestricted electrical licence SYN-EL-202.",
+            "Supervisor qualification: Certificate IV in Electrical Instrumentation (2020).",
+            "Comparable works: Westhaven Campus (2023); Bayview Clinic (2025).",
+            "Public liability certificate: attached; AUD 20 million cover to 31 December 2027.",
+            "Workers compensation certificate: attached; valid to 31 December 2027.",
+            "Warranty schedule and exclusions: to be finalised after award.",
+            "Clarification contact: bids@sparrow.example."
+          ]
+        },
+        {
+          "heading": "3. Insurance attachments",
+          "lines": [
+            "SYNTHETIC CERTIFICATE COPIES - not valid insurance outside this fixture.",
+            "Insured: Sparrow Electrical Services Pty Ltd (fictional).",
+            "Public liability: synthetic policy SYN-PL-202; AUD 20 million.",
+            "Workers compensation: synthetic policy SYN-WC-202.",
+            "Declared period for both policies: 1 January 2026 to 31 December 2027."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arcwell",
+      "file": "pdfs/arcwell-proposal.pdf",
+      "title": "Arcwell Infrastructure - Proposal",
+      "pages": [
+        {
+          "heading": "1. Commercial offer",
+          "lines": [
+            "Supplier: Arcwell Infrastructure Pty Ltd (fictional).",
+            "Tender ID: NQTC-ELEC-2026-01. Proposal dated: 12 November 2026.",
+            "Ex-GST lump sum: AUD 1,099,000; excludes after-hours shutdown costs.",
+            "Proposed duration: 22 weeks from site access on 11 January 2027.",
+            "Target practical completion: 14 June 2027.",
+            "Workmanship warranty: 12 months from practical completion.",
+            "Method: complete two buildings in parallel with weekly isolation plans.",
+            "Testing: submit switchboard and circuit test sheets at handover."
+          ]
+        },
+        {
+          "heading": "2. Team and attachments",
+          "lines": [
+            "Electrical contractor licence: SYN-EC-303 (fictional training identifier).",
+            "Site supervisor: Nia Rowan; electrical licence SYN-EL-303 expired 30 June 2026.",
+            "Supervisor qualification: Certificate III in Electrotechnology (2017).",
+            "Comparable works: Kingside Depot (2022); Elm Training Hub (2024).",
+            "Public liability certificate: attached; AUD 20 million cover to 31 December 2027.",
+            "Workers compensation certificate: attached; valid to 31 December 2027.",
+            "Clarification contact: proposals@arcwell.example."
+          ]
+        },
+        {
+          "heading": "3. Insurance attachments",
+          "lines": [
+            "SYNTHETIC CERTIFICATE COPIES - not valid insurance outside this fixture.",
+            "Insured: Arcwell Infrastructure Pty Ltd (fictional).",
+            "Public liability: synthetic policy SYN-PL-303; AUD 20 million.",
+            "Workers compensation: synthetic policy SYN-WC-303.",
+            "Declared period for both policies: 1 January 2026 to 31 December 2027."
+          ]
+        }
+      ]
+    }
+  ],
+  "answers": [
+    { "id": "tender.close", "subject": "tender", "field": "closingDate", "value": "2026-11-13", "source": { "documentId": "tender", "page": 1, "quote": "Tender closes: 13 November 2026 at 4:00 pm AWST." } },
+    { "id": "tender.access", "subject": "tender", "field": "siteAccess", "value": "2027-01-11", "source": { "documentId": "tender", "page": 1, "quote": "Anticipated site access: 11 January 2027." } },
+    { "id": "tender.completion", "subject": "tender", "field": "requiredCompletion", "value": "2027-05-28", "source": { "documentId": "tender", "page": 1, "quote": "Required practical completion: no later than 28 May 2027." } },
+    { "id": "voltline.price", "subject": "voltline", "field": "priceExGstAud", "value": 1184000, "source": { "documentId": "voltline", "page": 1, "quote": "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings." } },
+    { "id": "voltline.duration", "subject": "voltline", "field": "durationWeeks", "value": 18, "source": { "documentId": "voltline", "page": 1, "quote": "Proposed duration: 18 weeks from site access on 11 January 2027." } },
+    { "id": "voltline.programmeCompletion", "subject": "voltline", "field": "programmeCompletion", "value": "2027-05-17", "source": { "documentId": "voltline", "page": 2, "quote": "Programme milestone practical completion: 17 May 2027." } },
+    { "id": "voltline.commercialCompletion", "subject": "voltline", "field": "commercialCompletion", "value": "2027-05-21", "source": { "documentId": "voltline", "page": 1, "quote": "Commercial offer completion date: 21 May 2027." } },
+    { "id": "voltline.warranty", "subject": "voltline", "field": "warrantyMonths", "value": 24, "source": { "documentId": "voltline", "page": 1, "quote": "Workmanship warranty: 24 months from practical completion." } },
+    { "id": "voltline.licence", "subject": "voltline", "field": "contractorLicence", "value": "SYN-EC-101", "source": { "documentId": "voltline", "page": 2, "quote": "Electrical contractor licence: SYN-EC-101 (fictional training identifier)." } },
+    { "id": "voltline.supervisorQualification", "subject": "voltline", "field": "supervisorQualification", "value": "Diploma of Electrical Engineering", "source": { "documentId": "voltline", "page": 2, "quote": "Supervisor qualification: Diploma of Electrical Engineering (2021)." } },
+    { "id": "voltline.references", "subject": "voltline", "field": "comparableReferences", "value": 2, "source": { "documentId": "voltline", "page": 2, "quote": "Comparable works: Eastbank Library upgrade (2024); Harbor Annex fit-out (2025)." } },
+    { "id": "voltline.liabilityEvidence", "subject": "voltline", "field": "publicLiabilityCertificate", "value": "not attached", "source": { "documentId": "voltline", "page": 2, "quote": "Public liability cover: AUD 20 million; certificate not attached." } },
+    { "id": "sparrow.price", "subject": "sparrow", "field": "priceExGstAud", "value": 1327500, "source": { "documentId": "sparrow", "page": 1, "quote": "Ex-GST lump sum: AUD 1,327,500; no exclusions listed." } },
+    { "id": "sparrow.duration", "subject": "sparrow", "field": "durationWeeks", "value": 16, "source": { "documentId": "sparrow", "page": 1, "quote": "Proposed duration: 16 weeks from site access on 11 January 2027." } },
+    { "id": "sparrow.programmeCompletion", "subject": "sparrow", "field": "programmeCompletion", "value": "2027-05-03", "source": { "documentId": "sparrow", "page": 1, "quote": "Target practical completion: 3 May 2027." } },
+    { "id": "sparrow.warranty", "subject": "sparrow", "field": "warrantyMonths", "value": 36, "source": { "documentId": "sparrow", "page": 1, "quote": "Warranty: 36 months, subject to manufacturer terms and exclusions to be agreed." } },
+    { "id": "sparrow.licence", "subject": "sparrow", "field": "contractorLicence", "value": "SYN-EC-202", "source": { "documentId": "sparrow", "page": 2, "quote": "Electrical contractor licence: SYN-EC-202 (fictional training identifier)." } },
+    { "id": "sparrow.supervisorQualification", "subject": "sparrow", "field": "supervisorQualification", "value": "Certificate IV in Electrical Instrumentation", "source": { "documentId": "sparrow", "page": 2, "quote": "Supervisor qualification: Certificate IV in Electrical Instrumentation (2020)." } },
+    { "id": "sparrow.references", "subject": "sparrow", "field": "comparableReferences", "value": 2, "source": { "documentId": "sparrow", "page": 2, "quote": "Comparable works: Westhaven Campus (2023); Bayview Clinic (2025)." } },
+    { "id": "sparrow.liabilityEvidence", "subject": "sparrow", "field": "publicLiabilityCertificate", "value": "SYN-PL-202", "source": { "documentId": "sparrow", "page": 3, "quote": "Public liability: synthetic policy SYN-PL-202; AUD 20 million." } },
+    { "id": "arcwell.price", "subject": "arcwell", "field": "priceExGstAud", "value": 1099000, "source": { "documentId": "arcwell", "page": 1, "quote": "Ex-GST lump sum: AUD 1,099,000; excludes after-hours shutdown costs." } },
+    { "id": "arcwell.duration", "subject": "arcwell", "field": "durationWeeks", "value": 22, "source": { "documentId": "arcwell", "page": 1, "quote": "Proposed duration: 22 weeks from site access on 11 January 2027." } },
+    { "id": "arcwell.programmeCompletion", "subject": "arcwell", "field": "programmeCompletion", "value": "2027-06-14", "source": { "documentId": "arcwell", "page": 1, "quote": "Target practical completion: 14 June 2027." } },
+    { "id": "arcwell.warranty", "subject": "arcwell", "field": "warrantyMonths", "value": 12, "source": { "documentId": "arcwell", "page": 1, "quote": "Workmanship warranty: 12 months from practical completion." } },
+    { "id": "arcwell.licence", "subject": "arcwell", "field": "contractorLicence", "value": "SYN-EC-303", "source": { "documentId": "arcwell", "page": 2, "quote": "Electrical contractor licence: SYN-EC-303 (fictional training identifier)." } },
+    { "id": "arcwell.supervisorQualification", "subject": "arcwell", "field": "supervisorQualification", "value": "Certificate III in Electrotechnology", "source": { "documentId": "arcwell", "page": 2, "quote": "Supervisor qualification: Certificate III in Electrotechnology (2017)." } },
+    { "id": "arcwell.references", "subject": "arcwell", "field": "comparableReferences", "value": 2, "source": { "documentId": "arcwell", "page": 2, "quote": "Comparable works: Kingside Depot (2022); Elm Training Hub (2024)." } },
+    { "id": "arcwell.liabilityEvidence", "subject": "arcwell", "field": "publicLiabilityCertificate", "value": "SYN-PL-303", "source": { "documentId": "arcwell", "page": 3, "quote": "Public liability: synthetic policy SYN-PL-303; AUD 20 million." } }
+  ],
+  "issues": [
+    {
+      "id": "voltline.missingInsurance",
+      "subject": "voltline",
+      "type": "missing_evidence",
+      "note": "Public liability cover is claimed, but the requested certificate is absent.",
+      "sources": [
+        { "documentId": "tender", "page": 2, "quote": "Attach current public liability and workers compensation insurance certificates." },
+        { "documentId": "voltline", "page": 2, "quote": "Public liability cover: AUD 20 million; certificate not attached." },
+        { "documentId": "voltline", "page": 3, "quote": "Public liability certificate: not included in this proposal." }
+      ]
+    },
+    {
+      "id": "voltline.conflictingDates",
+      "subject": "voltline",
+      "type": "conflicting_dates",
+      "note": "The commercial offer and programme give different completion dates.",
+      "sources": [
+        { "documentId": "voltline", "page": 1, "quote": "Commercial offer completion date: 21 May 2027." },
+        { "documentId": "voltline", "page": 2, "quote": "Programme milestone practical completion: 17 May 2027." }
+      ]
+    },
+    {
+      "id": "sparrow.ambiguousWarranty",
+      "subject": "sparrow",
+      "type": "ambiguous_warranty",
+      "note": "The 36-month term has unspecified manufacturer conditions and exclusions.",
+      "sources": [
+        { "documentId": "sparrow", "page": 1, "quote": "Warranty: 36 months, subject to manufacturer terms and exclusions to be agreed." },
+        { "documentId": "sparrow", "page": 2, "quote": "Warranty schedule and exclusions: to be finalised after award." }
+      ]
+    },
+    {
+      "id": "arcwell.lateCompletion",
+      "subject": "arcwell",
+      "type": "late_completion",
+      "note": "The proposed completion is after the tender deadline.",
+      "sources": [
+        { "documentId": "tender", "page": 1, "quote": "Required practical completion: no later than 28 May 2027." },
+        { "documentId": "arcwell", "page": 1, "quote": "Target practical completion: 14 June 2027." }
+      ]
+    },
+    {
+      "id": "arcwell.expiredSupervisorLicence",
+      "subject": "arcwell",
+      "type": "expired_qualification",
+      "note": "The named supervisor licence expired before proposal submission.",
+      "sources": [
+        { "documentId": "arcwell", "page": 1, "quote": "Tender ID: NQTC-ELEC-2026-01. Proposal dated: 12 November 2026." },
+        { "documentId": "arcwell", "page": 2, "quote": "Site supervisor: Nia Rowan; electrical licence SYN-EL-303 expired 30 June 2026." }
+      ]
+    }
+  ]
+}
