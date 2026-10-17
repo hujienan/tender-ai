@@ -1,0 +1,444 @@
+{
+  "documentId": "voltline",
+  "extracted": {
+    "supplierName": {
+      "value": "Voltline Projects Pty Ltd",
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 1,
+          "quote": "Supplier: Voltline Projects Pty Ltd (fictional)."
+        }
+      ]
+    },
+    "priceExGst": {
+      "value": 1184000,
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 1,
+          "quote": "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings."
+        }
+      ]
+    },
+    "currency": {
+      "value": "AUD",
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 1,
+          "quote": "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings."
+        }
+      ]
+    },
+    "proposedDurationWeeks": {
+      "value": 18,
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 1,
+          "quote": "Proposed duration: 18 weeks from site access on 11 January 2027."
+        }
+      ]
+    },
+    "warranty": {
+      "value": {
+        "months": 24,
+        "conditions": "24 months from practical completion"
+      },
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 1,
+          "quote": "Workmanship warranty: 24 months from practical completion."
+        }
+      ]
+    },
+    "programmeCompletionDate": {
+      "value": "2027-05-17",
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 2,
+          "quote": "Programme milestone practical completion: 17 May 2027."
+        }
+      ]
+    },
+    "commercialCompletionDate": {
+      "value": "2027-05-21",
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 1,
+          "quote": "Commercial offer completion date: 21 May 2027."
+        }
+      ]
+    },
+    "contractorLicence": {
+      "value": "SYN-EC-101",
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 2,
+          "quote": "Electrical contractor licence: SYN-EC-101 (fictional training identifier)."
+        }
+      ]
+    },
+    "supervisorQualification": {
+      "value": "Diploma of Electrical Engineering (2021)",
+      "evidence": [
+        {
+          "documentId": "voltline",
+          "page": 2,
+          "quote": "Supervisor qualification: Diploma of Electrical Engineering (2021)."
+        }
+      ]
+    },
+    "comparableReferences": [
+      {
+        "value": "Eastbank Library upgrade (2024)",
+        "evidence": [
+          {
+            "documentId": "voltline",
+            "page": 2,
+            "quote": "Comparable works: Eastbank Library upgrade (2024); Harbor Annex fit-out (2025)."
+          }
+        ]
+      },
+      {
+        "value": "Harbor Annex fit-out (2025)",
+        "evidence": [
+          {
+            "documentId": "voltline",
+            "page": 2,
+            "quote": "Comparable works: Eastbank Library upgrade (2024); Harbor Annex fit-out (2025)."
+          }
+        ]
+      }
+    ],
+    "insuranceEvidence": {
+      "publicLiability": {
+        "value": {
+          "status": "explicitly_missing",
+          "policyId": "AUD 20 million"
+        },
+        "evidence": [
+          {
+            "documentId": "voltline",
+            "page": 2,
+            "quote": "Public liability cover: AUD 20 million; certificate not attached."
+          }
+        ]
+      },
+      "workersCompensation": {
+        "value": {
+          "status": "attached",
+          "policyId": "SYN-WC-101"
+        },
+        "evidence": [
+          {
+            "documentId": "voltline",
+            "page": 2,
+            "quote": "Workers compensation certificate: attached as a declared copy."
+          },
+          {
+            "documentId": "voltline",
+            "page": 3,
+            "quote": "Cover: workers compensation; synthetic policy SYN-WC-101."
+          }
+        ]
+      }
+    },
+    "identifiedIssues": [
+      {
+        "type": "conflicting_dates",
+        "description": "Programme completion date is 17 May 2027, while commercial completion date is 21 May 2027.",
+        "evidence": [
+          {
+            "documentId": "voltline",
+            "page": 1,
+            "quote": "Programme milestone practical completion: 17 May 2027."
+          },
+          {
+            "documentId": "voltline",
+            "page": 1,
+            "quote": "Commercial offer completion date: 21 May 2027."
+          }
+        ]
+      }
+    ]
+  },
+  "validation": {
+    "valid": false,
+    "errors": [
+      "extraction.identifiedIssues[0].evidence[0]: quotation does not occur on the cited page",
+      "extraction.insuranceEvidence.publicLiability.value.policyId: no supplier quotation identifies AUD 20 million as a policy number",
+      "Missing public liability certificate was not identified as a missing_evidence issue."
+    ]
+  },
+  "attempts": [
+    {
+      "modelId": "amazon.nova-lite-v1:0",
+      "region": "ap-southeast-2",
+      "serviceTier": "default",
+      "latencyMs": 5115,
+      "tokenUsage": {
+        "input_tokens": 4478,
+        "output_tokens": 934,
+        "total_tokens": 5412
+      },
+      "responseMetadata": {
+        "stopReason": "tool_use",
+        "usage": {
+          "inputTokens": 4478,
+          "outputTokens": 934,
+          "totalTokens": 5412
+        },
+        "metrics": {
+          "latencyMs": 4880
+        },
+        "serviceTier": {
+          "type": "default"
+        },
+        "$metadata": {
+          "httpStatusCode": 200,
+          "requestId": "57f78b50-7839-4a6c-8042-a7dea8a0eaed",
+          "attempts": 1,
+          "totalRetryDelay": 0
+        },
+        "model_provider": "bedrock-converse"
+      },
+      "rawResponse": {
+        "lc": 1,
+        "type": "constructor",
+        "id": [
+          "langchain_core",
+          "messages",
+          "AIMessage"
+        ],
+        "kwargs": {
+          "content": "",
+          "tool_calls": [
+            {
+              "id": "tooluse_6ZypWGUrfwMrtiNWmB7WBi",
+              "name": "extract_supplier",
+              "args": {
+                "supplierName": {
+                  "value": "Voltline Projects Pty Ltd",
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 1,
+                      "quote": "Supplier: Voltline Projects Pty Ltd (fictional)."
+                    }
+                  ]
+                },
+                "priceExGst": {
+                  "value": 1184000,
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 1,
+                      "quote": "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings."
+                    }
+                  ]
+                },
+                "supervisorQualification": {
+                  "value": "Diploma of Electrical Engineering (2021)",
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 2,
+                      "quote": "Supervisor qualification: Diploma of Electrical Engineering (2021)."
+                    }
+                  ]
+                },
+                "insuranceEvidence": {
+                  "publicLiability": {
+                    "value": {
+                      "status": "explicitly_missing",
+                      "policyId": "AUD 20 million"
+                    },
+                    "evidence": [
+                      {
+                        "documentId": "voltline",
+                        "page": 2,
+                        "quote": "Public liability cover: AUD 20 million; certificate not attached."
+                      }
+                    ]
+                  },
+                  "workersCompensation": {
+                    "value": {
+                      "status": "attached",
+                      "policyId": "SYN-WC-101"
+                    },
+                    "evidence": [
+                      {
+                        "documentId": "voltline",
+                        "page": 2,
+                        "quote": "Workers compensation certificate: attached as a declared copy."
+                      },
+                      {
+                        "documentId": "voltline",
+                        "page": 3,
+                        "quote": "Cover: workers compensation; synthetic policy SYN-WC-101."
+                      }
+                    ]
+                  }
+                },
+                "warranty": {
+                  "value": {
+                    "months": 24,
+                    "conditions": "24 months from practical completion"
+                  },
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 1,
+                      "quote": "Workmanship warranty: 24 months from practical completion."
+                    }
+                  ]
+                },
+                "comparableReferences": [
+                  {
+                    "value": "Eastbank Library upgrade (2024)",
+                    "evidence": [
+                      {
+                        "documentId": "voltline",
+                        "page": 2,
+                        "quote": "Comparable works: Eastbank Library upgrade (2024); Harbor Annex fit-out (2025)."
+                      }
+                    ]
+                  },
+                  {
+                    "value": "Harbor Annex fit-out (2025)",
+                    "evidence": [
+                      {
+                        "documentId": "voltline",
+                        "page": 2,
+                        "quote": "Comparable works: Eastbank Library upgrade (2024); Harbor Annex fit-out (2025)."
+                      }
+                    ]
+                  }
+                ],
+                "currency": {
+                  "value": "AUD",
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 1,
+                      "quote": "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings."
+                    }
+                  ]
+                },
+                "programmeCompletionDate": {
+                  "value": "2027-05-17",
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 2,
+                      "quote": "Programme milestone practical completion: 17 May 2027."
+                    }
+                  ]
+                },
+                "identifiedIssues": [
+                  {
+                    "type": "conflicting_dates",
+                    "description": "Programme completion date is 17 May 2027, while commercial completion date is 21 May 2027.",
+                    "evidence": [
+                      {
+                        "documentId": "voltline",
+                        "page": 1,
+                        "quote": "Programme milestone practical completion: 17 May 2027."
+                      },
+                      {
+                        "documentId": "voltline",
+                        "page": 1,
+                        "quote": "Commercial offer completion date: 21 May 2027."
+                      }
+                    ]
+                  }
+                ],
+                "commercialCompletionDate": {
+                  "value": "2027-05-21",
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 1,
+                      "quote": "Commercial offer completion date: 21 May 2027."
+                    }
+                  ]
+                },
+                "proposedDurationWeeks": {
+                  "value": 18,
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 1,
+                      "quote": "Proposed duration: 18 weeks from site access on 11 January 2027."
+                    }
+                  ]
+                },
+                "contractorLicence": {
+                  "value": "SYN-EC-101",
+                  "evidence": [
+                    {
+                      "documentId": "voltline",
+                      "page": 2,
+                      "quote": "Electrical contractor licence: SYN-EC-101 (fictional training identifier)."
+                    }
+                  ]
+                }
+              },
+              "type": "tool_call"
+            }
+          ],
+          "response_metadata": {
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 4478,
+              "outputTokens": 934,
+              "totalTokens": 5412
+            },
+            "metrics": {
+              "latencyMs": 4880
+            },
+            "serviceTier": {
+              "type": "default"
+            },
+            "$metadata": {
+              "httpStatusCode": 200,
+              "requestId": "57f78b50-7839-4a6c-8042-a7dea8a0eaed",
+              "attempts": 1,
+              "totalRetryDelay": 0
+            },
+            "model_provider": "bedrock-converse"
+          },
+          "usage_metadata": {
+            "input_tokens": 4478,
+            "output_tokens": 934,
+            "total_tokens": 5412
+          },
+          "id": "57f78b50-7839-4a6c-8042-a7dea8a0eaed",
+          "invalid_tool_calls": [],
+          "additional_kwargs": {}
+        }
+      },
+      "costEstimate": {
+        "currency": "USD",
+        "estimatedUsd": 0.000517482,
+        "rate": {
+          "modelId": "amazon.nova-lite-v1:0",
+          "region": "ap-southeast-2",
+          "serviceTier": "default",
+          "inputUsdPerMillion": 0.063,
+          "outputUsdPerMillion": 0.252,
+          "source": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonBedrock/current/ap-southeast-2/index.json",
+          "verifiedDate": "2026-10-16"
+        }
+      },
+      "costError": null
+    }
+  ],
+  "totalEstimatedCostUsd": 0.000517482
+}

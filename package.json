@@ -8,6 +8,12 @@
   },
   "scripts": {
     "fixtures:generate": "node --experimental-strip-types scripts/generate-fixtures.ts",
+    "bedrock:demo": "node --experimental-strip-types scripts/bedrock-demo.ts",
+    "extract:supplier": "node --experimental-strip-types scripts/extract-supplier.ts",
+    "extract:2d": "node --experimental-strip-types scripts/extract-assessment-2d.ts",
+    "revalidate:2d": "node --experimental-strip-types scripts/revalidate-2d.ts",
+    "revalidate:assessment": "node --experimental-strip-types scripts/revalidate-assessment.ts",
+    "evaluate:extraction": "node --experimental-strip-types scripts/evaluate-extraction.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write \"{apps,packages,scripts,tests}/**/*.{ts,tsx}\" eslint.config.mjs .prettierrc.json",
@@ -26,5 +32,10 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.2",
     "vitest": "5.0.5"
+  },
+  "dependencies": {
+    "@langchain/aws": "1.4.7",
+    "@langchain/core": "1.2.18",
+    "zod": "4.6.7"
   }
 }

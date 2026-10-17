@@ -5,12 +5,14 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strict": true,
+    "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["scripts/**/*.ts", "tests/**/*.ts"]
+  "include": ["packages/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts"]
 }
