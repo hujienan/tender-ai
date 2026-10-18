@@ -20,7 +20,7 @@ const insurance = cited(
     .strict(),
 );
 
-export const SupplierExtractionSchema = z
+export const SupplierFactsSchema = z
   .object({
     supplierName: cited(z.string().min(1)).nullable(),
     priceExGst: cited(z.number().nonnegative()).nullable(),
@@ -45,40 +45,24 @@ export const SupplierExtractionSchema = z
         workersCompensation: insurance.nullable(),
       })
       .strict(),
-    identifiedIssues: z.array(
-      z
-        .object({
-          type: z.enum([
-            "missing_evidence",
-            "conflicting_dates",
-            "ambiguous_warranty",
-            "late_completion",
-            "expired_qualification",
-            "other",
-          ]),
-          description: z.string().min(1),
-          evidence: z.array(EvidenceSchema).min(1),
-        })
-        .strict(),
-    ),
   })
-  .strict();
-
-// Milestone 2B shape is retained for reading saved baseline results only.
-export const SupplierFactsSchema = SupplierExtractionSchema.omit({
-  identifiedIssues: true,
-}).superRefine((facts, context) => {
-  function rejectLiteralNull(value: unknown, path: (string | number)[] = []) {
-    if (typeof value === "string" && value.trim().toLowerCase() === "null") {
-      context.addIssue({ code: "custom", path, message: "Use JSON null, not the string 'null'." });
-    } else if (Array.isArray(value)) {
-      value.forEach((item, index) => rejectLiteralNull(item, [...path, index]));
-    } else if (value && typeof value === "object") {
-      for (const [key, child] of Object.entries(value)) rejectLiteralNull(child, [...path, key]);
+  .strict()
+  .superRefine((facts, context) => {
+    function rejectLiteralNull(value: unknown, path: (string | number)[] = []) {
+      if (typeof value === "string" && value.trim().toLowerCase() === "null") {
+        context.addIssue({
+          code: "custom",
+          path,
+          message: "Use JSON null, not the string 'null'.",
+        });
+      } else if (Array.isArray(value)) {
+        value.forEach((item, index) => rejectLiteralNull(item, [...path, index]));
+      } else if (value && typeof value === "object") {
+        for (const [key, child] of Object.entries(value)) rejectLiteralNull(child, [...path, key]);
+      }
     }
-  }
-  rejectLiteralNull(facts);
-});
+    rejectLiteralNull(facts);
+  });
 
 const citedDate = cited(z.iso.date()).nullable();
 const citedRequirement = cited(z.boolean()).nullable();
@@ -95,16 +79,26 @@ export const TenderRequirementsSchema = z
   })
   .strict();
 
+export const GeneralRequirementsSchema = TenderRequirementsSchema.pick({
+  tenderId: true,
+  closingDate: true,
+  siteAccessDate: true,
+  requiredPracticalCompletionDate: true,
+  requiredCurrency: true,
+});
+export const ComplianceRequirementsSchema = TenderRequirementsSchema.pick({
+  minimumComparableReferences: true,
+  publicLiabilityCertificateRequired: true,
+  workersCompensationCertificateRequired: true,
+});
+
 // Nova Converse accepts only these three top-level tool schema keys; Zod still validates the response.
 export function toolSchema(schema: z.ZodType) {
   const jsonSchema = z.toJSONSchema(schema);
   return { type: "object", properties: jsonSchema.properties, required: jsonSchema.required };
 }
-export const NovaToolSchema = toolSchema(SupplierExtractionSchema);
 export const SupplierFactsToolSchema = toolSchema(SupplierFactsSchema);
-export const TenderRequirementsToolSchema = toolSchema(TenderRequirementsSchema);
 
 export type Evidence = z.infer<typeof EvidenceSchema>;
-export type SupplierExtraction = z.infer<typeof SupplierExtractionSchema>;
 export type SupplierFacts = z.infer<typeof SupplierFactsSchema>;
 export type TenderRequirements = z.infer<typeof TenderRequirementsSchema>;

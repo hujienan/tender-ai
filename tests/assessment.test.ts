@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AIMessage } from "@langchain/core/messages";
@@ -8,25 +7,23 @@ import {
   BEDROCK_REGION,
   NOVA_PRO_MODEL_ID,
 } from "../packages/bedrock/src/client.ts";
-import { compareCompliance2D } from "../packages/comparison/src/compare-2d.ts";
+import { compareValidatedCompliance } from "../packages/comparison/src/compare.ts";
+import { extractValidatedTenderRequirements } from "../packages/extraction/src/tender.ts";
+import { runTenderAssessment } from "../packages/assessment/src/run.ts";
+import {
+  EMPTY_TENDER,
+  validateSupplierFields,
+  validateTenderFields,
+} from "../packages/extraction/src/field-validation.ts";
 import {
   GeneralRequirementsSchema,
   ComplianceRequirementsSchema,
-  extractTender2D,
-  runAssessment2D,
-} from "../packages/extraction/src/assessment-2d.ts";
-import {
-  EMPTY_TENDER,
-  validateSupplier2D,
-  validateTender2D,
-} from "../packages/extraction/src/field-validation.ts";
-import {
-  SupplierExtractionSchema,
   SupplierFactsSchema,
   type SupplierFacts,
   type TenderRequirements,
 } from "../packages/extraction/src/schema.ts";
 import { extractPdf } from "../packages/pdf/src/extract.ts";
+import { voltlineWithUnsupportedPolicyId } from "./fixtures.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const source = (documentId: string, page: number, quote: string) => ({ documentId, page, quote });
@@ -85,27 +82,7 @@ async function pdf(id: string) {
   );
 }
 async function voltline(): Promise<SupplierFacts> {
-  const old = JSON.parse(
-    await readFile(
-      join(root, "datasets/electrical-installation/baselines/2b/voltline-baseline.json"),
-      "utf8",
-    ),
-  ) as { extracted: unknown };
-  const { identifiedIssues: _issues, ...facts } = SupplierExtractionSchema.parse(old.extracted);
-  void _issues;
-  return SupplierFactsSchema.parse({
-    ...facts,
-    insuranceEvidence: {
-      ...facts.insuranceEvidence,
-      workersCompensation: {
-        ...facts.insuranceEvidence.workersCompensation!,
-        evidence: [
-          source("voltline", 2, "Workers compensation certificate: attached as a declared copy."),
-          source("voltline", 3, "Cover: workers compensation; synthetic policy SYN-WC-101."),
-        ],
-      },
-    },
-  });
+  return SupplierFactsSchema.parse(voltlineWithUnsupportedPolicyId());
 }
 function mocked(name: string, args: Record<string, unknown>) {
   return Object.assign(
@@ -119,7 +96,7 @@ function mocked(name: string, args: Record<string, unknown>) {
     },
   );
 }
-describe("Milestone 2D field-level safety and extraction", () => {
+describe("field-validated assessment", () => {
   it("defines smaller complete schemas instead of an eight-field tender call", () => {
     expect(GeneralRequirementsSchema.keyof().options).toHaveLength(5);
     expect(ComplianceRequirementsSchema.keyof().options).toHaveLength(3);
@@ -142,11 +119,11 @@ describe("Milestone 2D field-level safety and extraction", () => {
     ]);
     const tender = {
       extracted: requirements,
-      validation: validateTender2D(requirements, tenderDoc),
+      validation: validateTenderFields(requirements, tenderDoc),
     };
     const supplier = {
       extracted: facts,
-      validation: validateSupplier2D(facts, supplierDoc),
+      validation: validateSupplierFields(facts, supplierDoc),
     };
     expect(supplier.validation.valid).toBe(false);
     expect(supplier.validation.fields["insuranceEvidence.publicLiability.policyId"]?.status).toBe(
@@ -157,7 +134,7 @@ describe("Milestone 2D field-level safety and extraction", () => {
     );
     expect(supplier.validation.fields.programmeCompletionDate?.status).toBe("valid");
     expect(supplier.validation.fields.commercialCompletionDate?.status).toBe("valid");
-    const assessment = compareCompliance2D(tender, supplier);
+    const assessment = compareValidatedCompliance(tender, supplier);
     expect(assessment.findings.map((finding) => finding.type).sort()).toEqual([
       "conflicting_dates",
       "missing_evidence",
@@ -187,9 +164,9 @@ describe("Milestone 2D field-level safety and extraction", () => {
         },
       },
     };
-    const result = compareCompliance2D(
-      { extracted: requirements, validation: validateTender2D(requirements, tenderDoc) },
-      { extracted: badFacts, validation: validateSupplier2D(badFacts, supplierDoc) },
+    const result = compareValidatedCompliance(
+      { extracted: requirements, validation: validateTenderFields(requirements, tenderDoc) },
+      { extracted: badFacts, validation: validateSupplierFields(badFacts, supplierDoc) },
     );
     expect(result.findings).toEqual([]);
     expect(result.status).toBe("requires_review");
@@ -207,14 +184,14 @@ describe("Milestone 2D field-level safety and extraction", () => {
       publicLiabilityCertificateRequired: null,
       workersCompensationCertificateRequired: null,
     };
-    const validation = validateTender2D(partial, tenderDoc, {
+    const validation = validateTenderFields(partial, tenderDoc, {
       compliance: ["Incomplete tool call"],
     });
     expect(validation.fields.requiredPracticalCompletionDate?.status).toBe("valid");
     expect(validation.fields.publicLiabilityCertificateRequired?.status).toBe("invalid");
-    const result = compareCompliance2D(
+    const result = compareValidatedCompliance(
       { extracted: partial, validation },
-      { extracted: facts, validation: validateSupplier2D(facts, supplierDoc) },
+      { extracted: facts, validation: validateSupplierFields(facts, supplierDoc) },
     );
     expect(result.findings.map((finding) => finding.type)).toEqual(["conflicting_dates"]);
     expect(result.reviewReasons.some((reason) => reason.includes("insurance requirement"))).toBe(
@@ -245,19 +222,20 @@ describe("Milestone 2D field-level safety and extraction", () => {
         ),
       ),
     );
-    const generalInvoke = vi.fn().mockResolvedValue({
-      raw: mocked("extract_tender_general", general),
-      parsed: general,
+    const order: string[] = [];
+    const generalInvoke = vi.fn().mockImplementation(async () => {
+      order.push("general");
+      return { raw: mocked("extract_tender_general", general), parsed: general };
     });
-    const complianceInvoke = vi.fn().mockResolvedValue({
-      raw: mocked("extract_tender_compliance", compliance),
-      parsed: compliance,
+    const complianceInvoke = vi.fn().mockImplementation(async () => {
+      order.push("compliance");
+      return { raw: mocked("extract_tender_compliance", compliance), parsed: compliance };
     });
-    const supplierInvoke = vi.fn().mockResolvedValue({
-      raw: mocked("extract_supplier_facts", facts),
-      parsed: facts,
+    const supplierInvoke = vi.fn().mockImplementation(async () => {
+      order.push("supplier");
+      return { raw: mocked("extract_supplier_facts", facts), parsed: facts };
     });
-    const report = await runAssessment2D(
+    const report = await runTenderAssessment(
       tenderDoc,
       supplierDoc,
       generalInvoke,
@@ -265,10 +243,11 @@ describe("Milestone 2D field-level safety and extraction", () => {
       supplierInvoke,
       modelId,
     );
-    expect(report.version).toBe("2d");
+    expect(report.schemaVersion).toBe(1);
     expect(generalInvoke).toHaveBeenCalledOnce();
     expect(complianceInvoke).toHaveBeenCalledOnce();
     expect(supplierInvoke).toHaveBeenCalledOnce();
+    expect(order).toEqual(["general", "compliance", "supplier"]);
     expect(report.tender.validation.valid).toBe(true);
     expect(report.supplier.validation.valid).toBe(false);
     expect(report.assessment.findings.map((finding) => finding.type).sort()).toEqual([
@@ -293,8 +272,15 @@ describe("Milestone 2D field-level safety and extraction", () => {
 
   it("records the selected model on failed calls without inventing a cost", async () => {
     const failed = vi.fn().mockRejectedValue(new Error("offline invocation failure"));
-    const report = await extractTender2D(await pdf("tender"), failed, failed, NOVA_PRO_MODEL_ID);
+    const report = await extractValidatedTenderRequirements(
+      await pdf("tender"),
+      failed,
+      failed,
+      NOVA_PRO_MODEL_ID,
+    );
     expect(report.attempts.map((attempt) => attempt.modelId)).toEqual([
+      NOVA_PRO_MODEL_ID,
+      NOVA_PRO_MODEL_ID,
       NOVA_PRO_MODEL_ID,
       NOVA_PRO_MODEL_ID,
     ]);

@@ -1,4 +1,4 @@
-import type { SupplierExtraction, SupplierFacts } from "../../extraction/src/schema.ts";
+import type { SupplierFacts } from "../../extraction/src/schema.ts";
 
 type Reference = {
   currency: string;
@@ -8,7 +8,7 @@ type Reference = {
 };
 
 function scoreFacts(
-  facts: SupplierFacts | SupplierExtraction | null,
+  facts: SupplierFacts | null,
   supplier: Reference["suppliers"][number],
   reference: Reference,
 ) {
@@ -59,46 +59,6 @@ function scoreFacts(
         ? check.actual.replace(/\s+\(\d{4}\)$/, "") === check.expected
         : Object.is(check.expected, check.actual),
   }));
-}
-
-export function evaluateExtraction(
-  report: {
-    documentId: string;
-    extracted: SupplierExtraction | null;
-    validation: { valid: boolean };
-  },
-  reference: Reference,
-) {
-  const supplier = reference.suppliers.find((entry) => entry.documentId === report.documentId);
-  if (!supplier) throw new Error(`No reference supplier for document ${report.documentId}.`);
-
-  const facts = report.extracted;
-  const checks = scoreFacts(facts, supplier, reference);
-  const expectedIssues = reference.issues
-    .filter((issue) => issue.subject === supplier.id)
-    .map((issue) => issue.type)
-    .sort();
-  const actualIssues = facts?.identifiedIssues.map((issue) => issue.type).sort() ?? [];
-  const scored = [
-    ...checks,
-    {
-      field: "identifiedIssues",
-      expected: expectedIssues,
-      actual: actualIssues,
-      matches: JSON.stringify(expectedIssues) === JSON.stringify(actualIssues),
-    },
-  ];
-  const passed = scored.filter((check) => check.matches).length;
-
-  return {
-    supplierId: supplier.id,
-    evidenceValid: report.validation.valid,
-    overallResult:
-      report.validation.valid && passed === scored.length ? "acceptable" : "requires_review",
-    passed,
-    total: scored.length,
-    checks: scored,
-  };
 }
 
 export function evaluateAssessment(

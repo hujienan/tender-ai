@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { BEDROCK_MODEL_ID, NOVA_PRO_MODEL_ID } from "../packages/bedrock/src/client.ts";
-import { runAssessment2D } from "../packages/extraction/src/assessment-2d.ts";
+import { runTenderAssessment } from "../packages/assessment/src/run.ts";
 import { extractPdf } from "../packages/pdf/src/extract.ts";
 
 const supplierId = process.argv[2] ?? "voltline";
@@ -19,7 +19,7 @@ if (
   !modelId ||
   process.argv.length > 4
 ) {
-  console.error("Usage: pnpm extract:2d [voltline|sparrow|arcwell] [nova-lite|nova-pro]");
+  console.error("Usage: pnpm assess [voltline|sparrow|arcwell] [nova-lite|nova-pro]");
   process.exitCode = 1;
 } else {
   try {
@@ -35,9 +35,9 @@ if (
     const output = join(
       root,
       "tmp/extractions",
-      `${supplierId}-2d-${modelName}-${Date.now()}-${randomUUID().slice(0, 8)}.json`,
+      `${supplierId}-assessment-${modelName}-${Date.now()}-${randomUUID().slice(0, 8)}.json`,
     );
-    const report = await runAssessment2D(
+    const report = await runTenderAssessment(
       tender,
       supplier,
       undefined,
@@ -50,14 +50,29 @@ if (
     console.log(
       JSON.stringify(
         {
-          version: report.version,
+          schemaVersion: report.schemaVersion,
           modelId,
           region: report.tender.attempts[0]?.region,
           tenderValidation: report.tender.validation,
           supplierValidation: report.supplier.validation,
           assessment: report.assessment,
           estimatedCostUsd: report.totalEstimatedCostUsd,
+          knownEstimatedCostUsd: report.knownEstimatedCostUsd,
           attempts: report.tender.attempts.length + report.supplier.attempts.length,
+          operations: {
+            general: {
+              attempts: report.tender.groups.general.attempts.length,
+              recovery: report.tender.groups.general.recovery,
+            },
+            compliance: {
+              attempts: report.tender.groups.compliance.attempts.length,
+              recovery: report.tender.groups.compliance.recovery,
+            },
+            supplier: {
+              attempts: report.supplier.attempts.length,
+              recovery: report.supplier.recovery,
+            },
+          },
           saved: output,
         },
         null,

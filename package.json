@@ -8,12 +8,11 @@
   },
   "scripts": {
     "fixtures:generate": "node --experimental-strip-types scripts/generate-fixtures.ts",
-    "bedrock:demo": "node --experimental-strip-types scripts/bedrock-demo.ts",
-    "extract:supplier": "node --experimental-strip-types scripts/extract-supplier.ts",
-    "extract:2d": "node --experimental-strip-types scripts/extract-assessment-2d.ts",
-    "revalidate:2d": "node --experimental-strip-types scripts/revalidate-2d.ts",
-    "revalidate:assessment": "node --experimental-strip-types scripts/revalidate-assessment.ts",
-    "evaluate:extraction": "node --experimental-strip-types scripts/evaluate-extraction.ts",
+    "assess": "node --experimental-strip-types scripts/assess.ts",
+    "db:init": "node --experimental-strip-types scripts/db-init.ts",
+    "index:documents": "node --experimental-strip-types scripts/index-documents.ts",
+    "revalidate": "node --experimental-strip-types scripts/revalidate.ts",
+    "evaluate": "node --experimental-strip-types scripts/evaluate.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write \"{apps,packages,scripts,tests}/**/*.{ts,tsx}\" eslint.config.mjs .prettierrc.json",
@@ -24,6 +23,7 @@
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "24.11.0",
+    "@types/pg": "8.23.1",
     "eslint": "10.12.0",
     "globals": "17.13.0",
     "pdf-lib": "1.17.1",
@@ -36,6 +36,7 @@
   "dependencies": {
     "@langchain/aws": "1.4.7",
     "@langchain/core": "1.2.18",
+    "pg": "8.23.1",
     "zod": "4.6.7"
   }
 }

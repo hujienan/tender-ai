@@ -1,56 +1,66 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   BEDROCK_MODEL_ID,
   BEDROCK_REGION,
   NOVA_PRO_MODEL_ID,
   createBedrockClient,
-  invokeBedrock,
 } from "../packages/bedrock/src/client.ts";
+import { estimateBedrockCost } from "../packages/bedrock/src/pricing.ts";
 
-describe("Bedrock integration", () => {
-  it("configures Nova Lite in Sydney without explicit credentials", () => {
-    const client = createBedrockClient();
-    expect(client.model).toBe(BEDROCK_MODEL_ID);
-    expect(client.region).toBe(BEDROCK_REGION);
+describe("Bedrock model configuration and pricing", () => {
+  it("configures direct Nova Lite and Nova Pro in Sydney without explicit credentials", () => {
+    const lite = createBedrockClient();
+    expect(lite.model).toBe(BEDROCK_MODEL_ID);
+    expect(lite.region).toBe(BEDROCK_REGION);
     const pro = createBedrockClient(4096, NOVA_PRO_MODEL_ID);
     expect(pro.model).toBe(NOVA_PRO_MODEL_ID);
     expect(pro.region).toBe(BEDROCK_REGION);
   });
 
-  it("returns response text, latency, token usage and response metadata", async () => {
-    const response = {
-      text: "Hello from a mock model.",
-      usage_metadata: { input_tokens: 5, output_tokens: 7, total_tokens: 12 },
-      response_metadata: { stopReason: "end_turn", requestId: "fake-request" },
-    };
-    const invoke = vi.fn().mockResolvedValue(response);
-
-    const result = await invokeBedrock("Say hello", { invoke });
-
-    expect(invoke).toHaveBeenCalledExactlyOnceWith("Say hello");
-    expect(result).toMatchObject({
-      text: "Hello from a mock model.",
-      modelId: BEDROCK_MODEL_ID,
-      tokenUsage: { input_tokens: 5, output_tokens: 7, total_tokens: 12 },
-      responseMetadata: { stopReason: "end_turn", requestId: "fake-request" },
+  it("uses each direct model's configured rate and actual token counts", () => {
+    const usage = { input_tokens: 1_000_000, output_tokens: 1_000_000 };
+    expect(
+      estimateBedrockCost(BEDROCK_MODEL_ID, BEDROCK_REGION, "default", usage).estimatedUsd,
+    ).toBeCloseTo(0.315);
+    const pro = estimateBedrockCost(NOVA_PRO_MODEL_ID, BEDROCK_REGION, "default", usage);
+    expect(pro.estimatedUsd).toBeCloseTo(4.2);
+    expect(pro.rate).toMatchObject({
+      modelId: NOVA_PRO_MODEL_ID,
+      inputUsdPerMillion: 0.84,
+      outputUsdPerMillion: 3.36,
     });
-    expect(result.latencyMs).toBeGreaterThanOrEqual(0);
   });
 
-  it("rejects empty prompts before invocation", async () => {
-    const invoke = vi.fn();
-    await expect(invokeBedrock("  ", { invoke })).rejects.toThrow("non-empty prompt");
-    expect(invoke).not.toHaveBeenCalled();
-  });
-
-  it.each([
-    ["CredentialsProviderError", "authentication failed"],
-    ["AccessDeniedException", "permission denied"],
-    ["ThrottlingException", "throttled"],
-    ["ValidationException", "invocation failed"],
-  ])("explains %s failures", async (name, message) => {
-    const error = Object.assign(new Error("SDK detail"), { name });
-    const invoke = vi.fn().mockRejectedValue(error);
-    await expect(invokeBedrock("Hello", { invoke })).rejects.toThrow(message);
+  it("refuses unsupported profiles, regions, tiers, cached tokens and invalid usage", () => {
+    const usage = { input_tokens: 100, output_tokens: 50 };
+    for (const model of ["apac.amazon.nova-lite-v1:0", "apac.amazon.nova-pro-v1:0"]) {
+      expect(() => estimateBedrockCost(model, BEDROCK_REGION, "default", usage)).toThrow(
+        "No configured price",
+      );
+    }
+    expect(() => estimateBedrockCost(BEDROCK_MODEL_ID, "us-east-1", "default", usage)).toThrow(
+      "No configured price",
+    );
+    expect(() => estimateBedrockCost(BEDROCK_MODEL_ID, BEDROCK_REGION, "priority", usage)).toThrow(
+      "No configured price",
+    );
+    expect(() =>
+      estimateBedrockCost(BEDROCK_MODEL_ID, BEDROCK_REGION, "default", {
+        ...usage,
+        input_token_details: { cache_read: 1 },
+      }),
+    ).toThrow("Cached tokens");
+    expect(() =>
+      estimateBedrockCost(BEDROCK_MODEL_ID, BEDROCK_REGION, "default", {
+        ...usage,
+        input_token_details: { cache_read: -1 },
+      }),
+    ).toThrow("Valid cached token counts");
+    expect(() =>
+      estimateBedrockCost(BEDROCK_MODEL_ID, BEDROCK_REGION, "default", {
+        ...usage,
+        output_tokens: -1,
+      }),
+    ).toThrow("Valid input");
   });
 });

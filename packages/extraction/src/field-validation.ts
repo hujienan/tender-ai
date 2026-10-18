@@ -57,13 +57,14 @@ function check(value: unknown, errors: string[]): FieldCheck {
   };
 }
 
-export function validateTender2D(
+export function validateTenderFields(
   facts: TenderRequirements,
   document: ExtractedPdf,
   unavailableGroups: Partial<Record<"general" | "compliance", string[]>> = {},
+  fieldErrors: Record<string, string[]> = {},
 ): FieldValidation {
   const sourceErrors = validateTenderRequirements(facts, document).errors;
-  const errors = [...sourceErrors];
+  const errors = [...sourceErrors, ...Object.values(fieldErrors).flat()];
   const fields: Record<string, FieldCheck> = {};
   for (const field of TENDER_FIELDS) {
     const group = (TENDER_GENERAL_FIELDS as readonly string[]).includes(field)
@@ -79,7 +80,7 @@ export function validateTender2D(
       const failures = groupErrors.map((error) => group + " extraction: " + error);
       fields[field] = { status: "invalid", errors: [...failures, ...matching] };
     } else {
-      fields[field] = check(facts[field], matching);
+      fields[field] = check(facts[field], [...matching, ...(fieldErrors[field] ?? [])]);
     }
   }
   for (const [group, groupErrors] of Object.entries(unavailableGroups)) {
@@ -88,13 +89,14 @@ export function validateTender2D(
   return { valid: errors.length === 0, errors, fields };
 }
 
-export function validateSupplier2D(
+export function validateSupplierFields(
   facts: SupplierFacts | null,
   document: ExtractedPdf,
   extractionErrors: string[] = [],
+  fieldErrors: Record<string, string[]> = {},
 ): FieldValidation {
   const sourceErrors = facts ? validateSupplierFacts(facts, document).errors : [];
-  const errors = [...extractionErrors, ...sourceErrors];
+  const errors = [...extractionErrors, ...sourceErrors, ...Object.values(fieldErrors).flat()];
   const fields: Record<string, FieldCheck> = {};
   for (const field of SUPPLIER_FIELDS) {
     const matched = sourceErrors.filter(
@@ -104,7 +106,9 @@ export function validateSupplier2D(
         error.startsWith("extraction." + field + "["),
     );
     const value = facts?.[field];
-    fields[field] = facts ? check(value, matched) : { status: "invalid", errors: extractionErrors };
+    fields[field] = facts
+      ? check(value, [...matched, ...(fieldErrors[field] ?? [])])
+      : { status: "invalid", errors: extractionErrors };
   }
   for (const kind of ["publicLiability", "workersCompensation"] as const) {
     const policy = facts?.insuranceEvidence[kind];
@@ -115,10 +119,18 @@ export function validateSupplier2D(
     const statusErrors = sourceErrors.filter((error) => error.startsWith(prefix + ".value.status"));
     const idErrors = sourceErrors.filter((error) => error.startsWith(prefix + ".value.policyId"));
     fields["insuranceEvidence." + kind + ".status"] = facts
-      ? check(policy?.value.status, [...citationErrors, ...statusErrors])
+      ? check(policy?.value.status, [
+          ...citationErrors,
+          ...statusErrors,
+          ...(fieldErrors["insuranceEvidence." + kind + ".status"] ?? []),
+        ])
       : { status: "invalid", errors: extractionErrors };
     fields["insuranceEvidence." + kind + ".policyId"] = facts
-      ? check(policy?.value.policyId, [...citationErrors, ...idErrors])
+      ? check(policy?.value.policyId, [
+          ...citationErrors,
+          ...idErrors,
+          ...(fieldErrors["insuranceEvidence." + kind + ".policyId"] ?? []),
+        ])
       : { status: "invalid", errors: extractionErrors };
   }
   if (facts) {

@@ -1,5 +1,5 @@
 import type { ExtractedPdf } from "../../pdf/src/extract.ts";
-import type { Evidence, SupplierExtraction, SupplierFacts, TenderRequirements } from "./schema.ts";
+import type { Evidence, SupplierFacts, TenderRequirements } from "./schema.ts";
 
 const normalise = (text: string) => text.replace(/\s+/g, " ").trim();
 const months = [
@@ -33,10 +33,7 @@ function supportsDate(value: string, evidence: Evidence[], documentId: string, p
   });
 }
 
-export function validateEvidence(
-  extraction: SupplierExtraction | SupplierFacts,
-  documents: ExtractedPdf[],
-) {
+export function validateEvidence(extraction: SupplierFacts, documents: ExtractedPdf[]) {
   const supplierDocumentId = documents[0]?.documentId;
   const pages = new Map(
     documents.map((document) => [
@@ -47,13 +44,13 @@ export function validateEvidence(
   const errors: string[] = [];
   if (!supplierDocumentId) errors.push("Supplier document is missing.");
 
-  function check(citation: Evidence, path: string, allowTender: boolean) {
+  function check(citation: Evidence, path: string) {
     const document = pages.get(citation.documentId);
     if (!document) {
       errors.push(`${path}: unknown document ID ${citation.documentId}`);
       return;
     }
-    if (!allowTender && citation.documentId !== supplierDocumentId) {
+    if (citation.documentId !== supplierDocumentId) {
       errors.push(`${path}: supplier fact must cite supplier document ${supplierDocumentId}`);
     }
     const page = document.get(citation.page);
@@ -65,24 +62,24 @@ export function validateEvidence(
     }
   }
 
-  function visit(value: unknown, path: string, allowTender: boolean) {
+  function visit(value: unknown, path: string) {
     if (Array.isArray(value)) {
-      value.forEach((item, index) => visit(item, `${path}[${index}]`, allowTender));
+      value.forEach((item, index) => visit(item, `${path}[${index}]`));
     } else if (value && typeof value === "object") {
       for (const [key, child] of Object.entries(value)) {
         if (key === "evidence" && Array.isArray(child)) {
           child.forEach((citation, index) =>
-            check(citation as Evidence, `${path}.evidence[${index}]`, allowTender),
+            check(citation as Evidence, `${path}.evidence[${index}]`),
           );
         } else {
-          visit(child, `${path}.${key}`, allowTender);
+          visit(child, `${path}.${key}`);
         }
       }
     }
   }
 
   for (const [field, value] of Object.entries(extraction)) {
-    visit(value, `extraction.${field}`, field === "identifiedIssues");
+    visit(value, `extraction.${field}`);
   }
 
   // shortcut: Numeric checks use the synthetic PDFs' field labels; expand parsing for real supplier formats.
@@ -199,34 +196,6 @@ export function validateEvidence(
         `extraction.insuranceEvidence.${kind}.value.status: supplier quotations do not support ${status}`,
       );
     }
-  }
-
-  if (
-    "identifiedIssues" in extraction &&
-    extraction.insuranceEvidence.publicLiability?.value.status === "explicitly_missing" &&
-    !extraction.identifiedIssues.some(
-      (issue) =>
-        issue.type === "missing_evidence" &&
-        /\bpublic liability\b/i.test(
-          [issue.description, ...issue.evidence.map((citation) => citation.quote)].join(" "),
-        ),
-    )
-  ) {
-    errors.push(
-      "Missing public liability certificate was not identified as a missing_evidence issue.",
-    );
-  }
-
-  const programme = extraction.programmeCompletionDate?.value;
-  const commercial = extraction.commercialCompletionDate?.value;
-  if (
-    "identifiedIssues" in extraction &&
-    programme &&
-    commercial &&
-    programme !== commercial &&
-    !extraction.identifiedIssues.some((issue) => issue.type === "conflicting_dates")
-  ) {
-    errors.push("Conflicting completion dates were not identified as an issue.");
   }
 
   return { valid: errors.length === 0, errors };
