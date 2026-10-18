@@ -42,4 +42,44 @@ describe("canonical assessment CLI", () => {
     expect(result.stderr).toContain("Usage: pnpm assess");
     expect(result.stdout).toBe("");
   });
+
+  it.each([
+    ["voltline", "nova-lite", "--mode", "rag"],
+    ["voltline", "nova-lite", "--mode", "unknown", "--live"],
+    ["voltline", "nova-lite", "--live"],
+    ["voltline", "nova-lite", "--mode", "rag", "--live", "--unknown"],
+  ])("rejects invalid RAG arguments before billable calls", (...args) => {
+    const result = spawnSync(
+      process.execPath,
+      ["--experimental-strip-types", join(root, "scripts/assess.ts"), ...args],
+      {
+        encoding: "utf8",
+        env: { ...process.env, DATABASE_URL: "postgresql://invalid@127.0.0.1:1/invalid" },
+      },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("Usage: pnpm assess");
+    expect(result.stdout).toBe("");
+  });
+
+  it("requires DATABASE_URL before RAG assessment", () => {
+    const env = { ...process.env };
+    delete env.DATABASE_URL;
+    const result = spawnSync(
+      process.execPath,
+      [
+        "--experimental-strip-types",
+        join(root, "scripts/assess.ts"),
+        "voltline",
+        "nova-lite",
+        "--mode",
+        "rag",
+        "--live",
+      ],
+      { encoding: "utf8", env },
+    );
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("Set DATABASE_URL");
+    expect(result.stdout).toBe("");
+  });
 });

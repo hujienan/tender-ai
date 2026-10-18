@@ -1,7 +1,7 @@
 import type { ExtractedPdf } from "../../pdf/src/extract.ts";
 import type { Evidence, SupplierFacts, TenderRequirements } from "./schema.ts";
 
-const normalise = (text: string) => text.replace(/\s+/g, " ").trim();
+export const normalise = (text: string) => text.replace(/\s+/g, " ").trim();
 const months = [
   "january",
   "february",

@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import type { IndexedDocument } from "../../indexing/src/index.ts";
 import type { EmbeddingConfig, RetrievalResult, RetrievalStore } from "./search.ts";
 
 type IndexedRow = {
@@ -18,6 +19,18 @@ export class PostgresRetrievalStore implements RetrievalStore {
 
   static connect(connectionString: string): PostgresRetrievalStore {
     return new PostgresRetrievalStore(new Pool({ connectionString }));
+  }
+
+  async getDocument(documentId: string): Promise<IndexedDocument | null> {
+    const result = await this.pool.query<IndexedDocument>(
+      `SELECT document_id AS "documentId", source_name AS "sourceName",
+              content_sha256 AS "contentSha256", page_count AS "pageCount",
+              chunker_version AS "chunkerVersion", embedding_model_id AS "embeddingModelId",
+              embedding_region AS "embeddingRegion", embedding_dimensions AS "embeddingDimensions"
+         FROM source_documents WHERE document_id = $1`,
+      [documentId],
+    );
+    return result.rows[0] ?? null;
   }
 
   async assertIndexed(documentIds: string[], embedding: EmbeddingConfig): Promise<void> {

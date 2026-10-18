@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { applyRagGrounding } from "../packages/assessment/src/grounding.ts";
 import { compareValidatedCompliance } from "../packages/comparison/src/compare.ts";
 import {
   validateSupplierFields,
@@ -19,9 +20,26 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const file = process.argv[2];
 const validation = z.object({ valid: z.boolean(), errors: z.array(z.string()) });
 const recovery = z.object({ fieldErrors: z.record(z.string(), z.array(z.string())) }).passthrough();
+const retrieval = z.object({
+  queries: z.array(
+    z.object({
+      group: z.enum(["general", "compliance", "supplier"]),
+      documentIds: z.array(z.string()),
+      chunks: z.array(
+        z.object({
+          documentId: z.string(),
+          pageNumber: z.number().int().positive(),
+          chunkIndex: z.number().int().nonnegative(),
+        }),
+      ),
+    }),
+  ),
+});
 const savedSchema = z
   .object({
     schemaVersion: z.literal(1),
+    mode: z.enum(["full", "rag"]).optional(),
+    retrieval: retrieval.optional(),
     tender: z
       .object({
         documentId: z.literal("tender"),
@@ -97,13 +115,22 @@ if (!file || process.argv.length > 3) {
         saved.supplier.recovery?.fieldErrors,
       ),
     };
+    const checked =
+      saved.mode === "rag"
+        ? applyRagGrounding(
+            tender,
+            supplier,
+            tenderPdf,
+            supplierPdf,
+            retrieval.parse(saved.retrieval),
+          )
+        : { tender, supplier };
     console.log(
       JSON.stringify(
         {
           ...saved,
-          tender,
-          supplier,
-          assessment: compareValidatedCompliance(tender, supplier),
+          ...checked,
+          assessment: compareValidatedCompliance(checked.tender, checked.supplier),
         },
         null,
         2,

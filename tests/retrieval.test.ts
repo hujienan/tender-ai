@@ -36,6 +36,24 @@ function store() {
 }
 
 describe("semantic retrieval", () => {
+  it("reads stored document freshness metadata by parameterized ID", async () => {
+    const document = {
+      documentId: "voltline",
+      sourceName: "voltline-proposal.pdf",
+      contentSha256: "a".repeat(64),
+      pageCount: 3,
+      chunkerVersion: "page-text-v1-1200",
+      embeddingModelId: embedding.modelId,
+      embeddingRegion: embedding.region,
+      embeddingDimensions: embedding.dimensions,
+    };
+    const query = vi.fn().mockResolvedValue({ rows: [document] });
+    const database = new PostgresRetrievalStore({ query } as unknown as Pool);
+    expect(await database.getDocument("voltline")).toEqual(document);
+    expect(query.mock.calls[0]?.[0]).toContain("FROM source_documents WHERE document_id = $1");
+    expect(query.mock.calls[0]?.[1]).toEqual(["voltline"]);
+  });
+
   it("embeds the query, passes allowlisted documents and topK, and ranks original passages", async () => {
     const model = provider();
     const database = store();

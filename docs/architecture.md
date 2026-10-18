@@ -12,11 +12,12 @@ flowchart LR
   BED --> IDX
   IDX --> PG[(Local PostgreSQL + pgvector)]
   PG --> RET[packages/retrieval]
+  RET --> ASM
   REPORT[Saved report] --> EVAL[packages/evaluation: offline]
   REF[reference.json: offline only] --> EVAL
 ```
 
-`packages/assessment/src/run.ts` exports `runTenderAssessment()`, the only end-to-end assessment entry point. Extraction returns validated facts; comparison consumes them without invoking Bedrock or PostgreSQL. The PDF package knows nothing about AI or storage. Indexing remains separate from assessment. Evaluation receives saved reports and reference data only through the offline CLI.
+`packages/assessment/src/run.ts` exports `runTenderAssessment()`, the only end-to-end assessment entry point. Full-document mode remains the default. Experimental RAG mode prepares role-scoped passages with retrieval before invoking the same extraction functions. Extraction returns validated facts; comparison consumes them without invoking Bedrock or PostgreSQL. The PDF package knows nothing about AI or storage. Indexing remains separate from assessment. Evaluation receives saved reports and reference data only through the offline CLI.
 
 ## Assessment flow
 
@@ -24,6 +25,10 @@ flowchart LR
 flowchart LR
   T[Tender PDF] --> P[PDF.js page text]
   S[Supplier PDF] --> P
+  P -->|RAG mode only| X[Freshness check and role-scoped retrieval]
+  X --> G
+  X --> C
+  X --> F
   P --> G[Tender general extraction]
   P --> C[Tender compliance extraction]
   P --> F[Supplier fact extraction]
@@ -35,7 +40,7 @@ flowchart LR
   D --> O[Schema version 1 report]
 ```
 
-The orchestrator runs general requirements, compliance requirements and supplier facts in that order. Each operation receives only its own document. Nova Lite or Nova Pro is selected for all three calls in `ap-southeast-2`. A failed invocation or incomplete structured response permits one retry for that operation. A complete response with unsupported evidence does not automatically retry. Recovered candidates need valid structure and their own supporting citations; conflicting supported values remain unresolved. Insurance certificate status and policy ID are checked separately.
+The orchestrator runs general requirements, compliance requirements and supplier facts in that order. Each operation receives only its own document. Full mode uses complete PDF text. RAG mode checks both indexed documents before any model call, then runs two general, two compliance and three supplier queries with topK 2 per query. Tender queries search only tender chunks; supplier queries search only the selected supplier. Returned chunks are checked against exact PDF slices, deduplicated within each operation and labelled with document ID, page and chunk index. Nova Lite or Nova Pro is selected for all three extraction calls in `ap-southeast-2`. A failed invocation or incomplete structured response permits one retry for that operation. A complete response with unsupported evidence does not automatically retry. Recovered candidates need valid structure and their own supporting citations; conflicting supported values remain unresolved. Insurance certificate status and policy ID are checked separately.
 
 `compareValidatedCompliance()` produces only `late_completion`, `conflicting_dates` and `missing_evidence` when their specific tender and supplier inputs validate. Other invalid fields do not suppress supported findings. Unsupported dependencies require review. Warranty terms and qualification validity are review candidates, not automatic findings.
 
@@ -45,16 +50,17 @@ The orchestrator runs general requirements, compliance requirements and supplier
 - `TenderRequirements` and `SupplierFacts` use nullable missing facts and `{ value, evidence: [{ documentId, page, quote }] }` citations. General and compliance tender groups remain separate in the report.
 - Each model attempt records model ID, region, service tier, latency, token usage, response metadata, raw response, error and estimated cost where available. Recovery records original attempt and tool-call provenance, unresolved fields and field errors. `knownEstimatedCostUsd` sums priced attempts; `totalEstimatedCostUsd` is null if any attempt cannot be priced.
 - Current saved reports use **`schemaVersion: 1`**. The `assess`, `revalidate` and `evaluate` commands share that version. There is no parser for obsolete report formats. Existing local `tmp/extractions/` files are left untouched; older formats must be regenerated for the current offline tools.
+- New reports identify `mode`; RAG reports also include query and chunk provenance, distinct chunk counts and Titan request count. The CLI records end-to-end latency. Older version 1 reports without `mode` remain accepted by the offline tools.
 
 ### Evidence and reference isolation
 
-Citations must point to the correct document and page, and quotations must occur in PDF.js extracted text with only reasonable whitespace normalization. Deterministic checks additionally verify straightforward values such as dates, price, duration, warranty months, insurance status and labelled policy IDs. A quote alone does not establish every qualitative claim or certificate authenticity. Unsupported facts remain invalid; the pipeline does not rewrite model output to make it pass.
+Citations must point to the correct document and page, and quotations must occur in the original full PDF.js extracted text with only reasonable whitespace normalization. In RAG mode, each citation must also occur in a retrieved passage supplied to its own general, compliance or supplier extraction operation. Recovery applies the same check before selecting candidate values; offline revalidation reconstructs the passages from recorded chunk references and original PDFs. The complete PDF remains the source of truth. Deterministic checks additionally verify straightforward values such as dates, price, duration, warranty months, insurance status and labelled policy IDs. A quote alone does not establish every qualitative claim or certificate authenticity. Unsupported facts remain invalid; the pipeline does not rewrite model output to make it pass.
 
 Only fixture generation, tests and offline evaluation read `datasets/electrical-installation/reference.json`. Runtime assessment, indexing and retrieval never import it, and reference answers must not enter prompts, vector indexes, query embeddings or inference-time rules.
 
 ### Model and cost boundaries
 
-The [AWS public Bedrock Sydney price list](https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonBedrock/current/ap-southeast-2/index.json) was checked on 17 October 2026. Direct Standard/default rates per million tokens are USD $0.063 input / $0.252 output for `amazon.nova-lite-v1:0` and $0.84 input / $3.36 output for `amazon.nova-pro-v1:0`. Estimates use returned token counts and are not exact AWS bills. Other regions, cross-region profiles, unsupported tiers, cached-token rates or missing usage do not receive invented prices.
+The [AWS public Bedrock Sydney price list](https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonBedrock/current/ap-southeast-2/index.json) was checked on 17 October 2026. Direct Standard/default rates per million tokens are USD $0.063 input / $0.252 output for `amazon.nova-lite-v1:0` and $0.84 input / $3.36 output for `amazon.nova-pro-v1:0`. Estimates use returned token counts and are not exact AWS bills. RAG's Titan query embedding calls are counted but not priced in the report; the existing estimated totals cover Nova calls only. Other regions, cross-region profiles, unsupported tiers, cached-token rates or missing usage do not receive invented prices.
 
 ## Indexing flow
 
@@ -80,8 +86,8 @@ flowchart LR
   S --> O[Ranked original passages + provenance]
 ```
 
-`packages/retrieval` checks each requested document before embedding the query. It requires `amazon.titan-embed-text-v2:0`, `ap-southeast-2` and 1,024 dimensions, and rejects missing documents or documents without compatible chunks. A parameterized SQL query applies the document allowlist and embedding metadata filters to both `source_documents` and `document_chunks`; `embedding <=> query_vector` sorts by ascending cosine distance with a bounded limit. No approximate vector index is used. Results retain source name, one-based page, zero-based chunk index, exact stored text, UTF-16 offsets and content hash. Retrieval is read-only and separate from assessment.
+`packages/retrieval` checks each requested document before embedding the query. It requires `amazon.titan-embed-text-v2:0`, `ap-southeast-2` and 1,024 dimensions, and rejects missing documents or documents without compatible chunks. A parameterized SQL query applies the document allowlist and embedding metadata filters to both `source_documents` and `document_chunks`; `embedding <=> query_vector` sorts by ascending cosine distance with a bounded limit. No approximate vector index is used. Results retain source name, one-based page, zero-based chunk index, exact stored text, UTF-16 offsets and content hash. Assessment RAG mode also checks current PDF content hashes and chunker version before retrieval; it never reindexes or writes to the database.
 
 ## Scope and next steps
 
-The CLI uses synthetic PDFs only. PDF.js does not OCR scans, and the evidence checks are tuned to their wording. Similarity-ranked passages are candidates for evidence, not proof of a claim. Retrieval does not feed assessment prompts. There is no retrieval-grounded extraction, LangGraph, LangSmith, API, reviewer interface or AWS deployment. A later step can integrate retrieved passages at the assessment boundary.
+The CLI uses synthetic PDFs only. PDF.js does not OCR scans, and the evidence checks are tuned to their wording. Similarity-ranked passages are candidates for evidence, not proof of a claim. With only two or three chunks per document, RAG may send most of the source text while adding seven Titan calls. TopK 2 can still miss a relevant passage, and no quality or cost advantage is assumed without paired offline evaluation. There is no LangGraph, LangSmith, API, reviewer interface or AWS deployment.

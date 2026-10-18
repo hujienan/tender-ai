@@ -15,7 +15,7 @@ TenderAI is a TypeScript prototype for reviewing synthetic construction tenders 
 | `packages/retrieval` | Embed a query and search compatible, explicitly selected document chunks by cosine distance. |
 | `packages/evaluation` | Score saved reports against reference answers offline. |
 
-The canonical entry point is [`runTenderAssessment()`](packages/assessment/src/run.ts). Assessment and indexing are separate: the current assessment reads full PDF text and does not query PostgreSQL. See the [architecture](docs/architecture.md) for the dependency graph and data contracts.
+The canonical entry point is [`runTenderAssessment()`](packages/assessment/src/run.ts). Full-document assessment remains the default; experimental RAG assessment reads the local index to prepare Nova context. Indexing is separate from both modes. See the [architecture](docs/architecture.md) for the dependency graph and data contracts.
 
 ## Development
 
@@ -35,9 +35,17 @@ pnpm assess voltline nova-lite
 pnpm assess voltline nova-pro
 ```
 
-The supported suppliers are `voltline`, `sparrow` and `arcwell`; the models are `nova-lite` and `nova-pro`. The defaults are Voltline and Nova Lite. AWS credentials come from the SDK default provider chain; none are stored in this repository. The CLI uses the synthetic tender and selected supplier PDF, then makes three independent structured calls: tender general requirements, tender compliance requirements and supplier facts. Each failed operation may retry once. Zod, page citations and field-level checks gate deterministic findings. The CLI saves a uniquely named report under `tmp/extractions/` and exits nonzero if tender or supplier validation fails.
+The supported suppliers are `voltline`, `sparrow` and `arcwell`; the models are `nova-lite` and `nova-pro`. The defaults are Voltline and Nova Lite. AWS credentials come from the SDK default provider chain; none are stored in this repository. The default mode sends full extracted PDF text to three independent structured calls: tender general requirements, tender compliance requirements and supplier facts. Each failed operation may retry once. Zod, page citations and field-level checks gate deterministic findings. The CLI saves a uniquely named report under `tmp/extractions/` and exits nonzero if tender or supplier validation fails.
 
-New reports use **`schemaVersion: 1`**. They retain source citations, raw responses, attempt and recovery provenance, model IDs, region, token usage, latency, findings and estimated cost. Cost estimates are not billed amounts; unsupported rates or missing usage produce a null complete total. [Rate details and limitations](docs/architecture.md#model-and-cost-boundaries) are documented separately.
+To compare the experimental RAG mode for the same supplier and Nova model, set `DATABASE_URL` to the local indexed database and run:
+
+```sh
+pnpm assess voltline nova-lite --mode rag --live
+```
+
+RAG checks both PDFs against stored content hashes, chunker version and Titan metadata before inference. It then makes seven targeted Titan V2 query embedding requests: two for tender identity and dates, two for tender compliance, and three for supplier facts. Each query retrieves up to two chunks from its own document. Duplicate chunks within each operation are included once. Nova sees source-labelled original passages. Citations must match both the complete original PDF and a passage supplied to their specific extraction operation, including recovered facts. Empty or stale retrieval fails without falling back to full-document mode. Retrieval similarity does not create compliance findings.
+
+New reports use **`schemaVersion: 1`**. They retain source citations, raw responses, attempt and recovery provenance, model IDs, region, token usage, latency, findings and estimated cost. Reports also identify `mode` (`full` or `rag`) and record CLI end-to-end latency. RAG reports include executed queries, document IDs, retrieved chunk IDs and pages, distinct chunk counts and Titan request count. The existing cost totals cover Nova calls only; Titan embedding cost is not estimated. Cost estimates are not billed amounts; unsupported rates or missing usage produce a null complete total. [Rate details and limitations](docs/architecture.md#model-and-cost-boundaries) are documented separately.
 
 Use the path printed by `assess` for offline checks:
 
@@ -46,7 +54,7 @@ pnpm revalidate <saved-report>
 pnpm evaluate <saved-report>
 ```
 
-`revalidate` rereads the PDFs and recomputes field validity and deterministic findings without a model call. `evaluate` scores a saved current report against `datasets/electrical-installation/reference.json`. Reference answers are reserved for fixture generation, tests and offline evaluation. Assessment, indexing and retrieval never load them or receive them in prompts or embedding inputs.
+`revalidate` rereads the PDFs and recomputes field validity and deterministic findings without a model call. For RAG reports it also checks citations against the recorded retrieval chunks for each extraction operation. `evaluate` scores a saved current report against `datasets/electrical-installation/reference.json`. Reference answers are reserved for fixture generation, tests and offline evaluation. Assessment, indexing and retrieval never load them or receive them in prompts or embedding inputs.
 
 ## Document indexing: manual, billable
 
@@ -74,4 +82,4 @@ Each command makes one Titan V2 query embedding call. Retrieval checks that ever
 
 ## Current limits
 
-PDF.js does not OCR scans. Source checks use patterns matched to the synthetic documents and do not authenticate insurance certificates. Warranty scope and qualification validity remain human-review topics. Retrieval reports similarity, not factual support; citations still need validation. Retrieval-grounded extraction, LangGraph, LangSmith, an API, a frontend and AWS deployment are not implemented. See the [roadmap](docs/roadmap.md).
+PDF.js does not OCR scans. Source checks use patterns matched to the synthetic documents and do not authenticate insurance certificates. Warranty scope and qualification validity remain human-review topics. Retrieval reports similarity, not factual support; citations still need validation. With only two tender and three supplier chunks, RAG may include most of each PDF, so quality or cost gains are unproven. Retrieval can miss relevant passages; unresolved fields require review. LangGraph, LangSmith, an API, a frontend and AWS deployment are not implemented. See the [roadmap](docs/roadmap.md).

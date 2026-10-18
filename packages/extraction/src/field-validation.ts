@@ -12,6 +12,16 @@ export type FieldValidation = {
   fields: Record<string, FieldCheck>;
 };
 
+export function mergeFieldErrors(...sets: Record<string, string[]>[]): Record<string, string[]> {
+  const merged: Record<string, string[]> = {};
+  for (const set of sets) {
+    for (const [field, errors] of Object.entries(set)) {
+      merged[field] = [...(merged[field] ?? []), ...errors];
+    }
+  }
+  return merged;
+}
+
 export const TENDER_GENERAL_FIELDS = [
   "tenderId",
   "closingDate",
@@ -138,7 +148,10 @@ export function validateSupplierFields(
       const related = sourceErrors.filter((error) =>
         error.startsWith("extraction.comparableReferences[" + index + "]"),
       );
-      fields["comparableReferences[" + index + "]"] = check(ref, related);
+      fields["comparableReferences[" + index + "]"] = check(ref, [
+        ...related,
+        ...(fieldErrors["comparableReferences[" + index + "]"] ?? []),
+      ]);
     }
   }
   return { valid: errors.length === 0, errors, fields };

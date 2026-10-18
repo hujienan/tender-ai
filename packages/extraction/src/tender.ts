@@ -11,6 +11,7 @@ import {
   EMPTY_TENDER,
   TENDER_COMPLIANCE_FIELDS,
   TENDER_GENERAL_FIELDS,
+  mergeFieldErrors,
   validateTenderFields,
   type FieldValidation,
 } from "./field-validation.ts";
@@ -57,6 +58,11 @@ export async function extractValidatedTenderRequirements(
   generalInvoke?: InvokeStructured,
   complianceInvoke?: InvokeStructured,
   modelId: BedrockExtractionModelId = BEDROCK_MODEL_ID,
+  promptContexts?: { general: string; compliance: string },
+  grounding?: {
+    general: (facts: Partial<TenderRequirements>) => Record<string, string[]>;
+    compliance: (facts: Partial<TenderRequirements>) => Record<string, string[]>;
+  },
 ): Promise<TenderExtraction> {
   const general = await recoverStructuredExtraction(
     () =>
@@ -66,9 +72,17 @@ export async function extractValidatedTenderRequirements(
         GeneralRequirementsSchema,
         toolSchema(GeneralRequirementsSchema),
         "extract_tender_general",
-        validateGroup,
+        (facts, source) => {
+          const validation = validateGroup(facts, source);
+          const errors = Object.values(grounding?.general(facts) ?? {}).flat();
+          return {
+            valid: validation.valid && errors.length === 0,
+            errors: [...validation.errors, ...errors],
+          };
+        },
         generalInvoke,
         modelId,
+        promptContexts?.general,
       ),
     GeneralRequirementsSchema,
     {
@@ -81,7 +95,12 @@ export async function extractValidatedTenderRequirements(
     TENDER_GENERAL_FIELDS,
     "extract_tender_general",
     (facts, fieldErrors) =>
-      validateTenderFields({ ...EMPTY_TENDER, ...facts }, document, {}, fieldErrors),
+      validateTenderFields(
+        { ...EMPTY_TENDER, ...facts },
+        document,
+        {},
+        mergeFieldErrors(fieldErrors, grounding?.general(facts) ?? {}),
+      ),
   );
   const compliance = await recoverStructuredExtraction(
     () =>
@@ -92,9 +111,17 @@ export async function extractValidatedTenderRequirements(
         ComplianceRequirementsSchema,
         toolSchema(ComplianceRequirementsSchema),
         "extract_tender_compliance",
-        validateGroup,
+        (facts, source) => {
+          const validation = validateGroup(facts, source);
+          const errors = Object.values(grounding?.compliance(facts) ?? {}).flat();
+          return {
+            valid: validation.valid && errors.length === 0,
+            errors: [...validation.errors, ...errors],
+          };
+        },
         complianceInvoke,
         modelId,
+        promptContexts?.compliance,
       ),
     ComplianceRequirementsSchema,
     {
@@ -105,7 +132,12 @@ export async function extractValidatedTenderRequirements(
     TENDER_COMPLIANCE_FIELDS,
     "extract_tender_compliance",
     (facts, fieldErrors) =>
-      validateTenderFields({ ...EMPTY_TENDER, ...facts }, document, {}, fieldErrors),
+      validateTenderFields(
+        { ...EMPTY_TENDER, ...facts },
+        document,
+        {},
+        mergeFieldErrors(fieldErrors, grounding?.compliance(facts) ?? {}),
+      ),
   );
   // Missing/invalid groups never become inferred tender requirements.
   const extracted: TenderRequirements = {
@@ -120,7 +152,12 @@ export async function extractValidatedTenderRequirements(
       ...(general.extracted ? {} : { general: general.validation.errors }),
       ...(compliance.extracted ? {} : { compliance: compliance.validation.errors }),
     },
-    { ...general.recovery?.fieldErrors, ...compliance.recovery?.fieldErrors },
+    mergeFieldErrors(
+      general.recovery?.fieldErrors ?? {},
+      compliance.recovery?.fieldErrors ?? {},
+      grounding?.general(general.extracted ?? {}) ?? {},
+      grounding?.compliance(compliance.extracted ?? {}) ?? {},
+    ),
   );
   const attempts = [...general.attempts, ...compliance.attempts];
   return {
