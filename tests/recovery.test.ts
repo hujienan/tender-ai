@@ -110,9 +110,17 @@ describe("bounded extraction recovery", () => {
     expect(report.tender.extracted.tenderId).toEqual(general.tenderId);
     expect(report.tender.groups.general.recovery?.retried).toBe(false);
     expect(report.supplier.recovery?.retried).toBe(false);
+    expect(report.supplier.extracted?.insuranceEvidence.publicLiability?.value).toEqual({
+      status: "explicitly_missing",
+      policyId: "AUD 20 million",
+    });
+    expect(
+      report.supplier.validation.fields["insuranceEvidence.publicLiability.status"]?.status,
+    ).toBe("valid");
     expect(
       report.supplier.validation.fields["insuranceEvidence.publicLiability.policyId"]?.status,
     ).toBe("invalid");
+    expect(report.supplier.attempts[0]?.rawResponse?.tool_calls?.[0]?.args).toEqual(supplier);
   });
 
   it("retries only a ToolUse failure with the same selected model", async () => {
@@ -176,6 +184,134 @@ describe("bounded extraction recovery", () => {
     expect(report.assessment.status).toBe("requires_review");
     expect(report.totalEstimatedCostUsd).toBeNull();
     expect(report.knownEstimatedCostUsd).toBeGreaterThan(0);
+  });
+
+  it("names omitted tender dates on retry and recovers a complete response", async () => {
+    const [tender, supplierDoc] = await documents();
+    const calls = successInvokes(await supplierFacts());
+    const partial = {
+      tenderId: general.tenderId,
+      closingDate: general.closingDate,
+      requiredCurrency: general.requiredCurrency,
+    };
+    calls.generalInvoke
+      .mockResolvedValueOnce(response("extract_tender_general", [partial]))
+      .mockResolvedValueOnce(response("extract_tender_general", [general]));
+    const report = await runTenderAssessment(
+      tender,
+      supplierDoc,
+      calls.generalInvoke,
+      calls.complianceInvoke,
+      calls.supplierInvoke,
+    );
+    expect(calls.generalInvoke).toHaveBeenCalledTimes(2);
+    expect(calls.generalInvoke.mock.calls[0]?.[0][0].text).not.toContain(
+      "Previous response failed structural validation",
+    );
+    const retryInstructions = calls.generalInvoke.mock.calls[1]?.[0][0].text;
+    expect(retryInstructions).toContain("missing siteAccessDate, requiredPracticalCompletionDate");
+    expect(retryInstructions).toContain(
+      "every required field (tenderId, closingDate, siteAccessDate, requiredPracticalCompletionDate, requiredCurrency)",
+    );
+    expect(retryInstructions).toContain("including fields previously correct");
+    expect(report.tender.groups.general.validation.valid).toBe(true);
+    expect(report.tender.validation.valid).toBe(true);
+    expect(report.tender.groups.general.recovery?.recoveredFields.siteAccessDate?.attempt).toBe(2);
+    expect(
+      report.tender.groups.general.recovery?.recoveredFields.requiredPracticalCompletionDate
+        ?.attempt,
+    ).toBe(2);
+    expect(report.tender.groups.general.recovery?.recoveredFields.tenderId?.attempt).toBe(1);
+    expect(report.tender.groups.general.attempts).toHaveLength(2);
+    expect(report.tender.groups.general.attempts[0]?.rawResponse?.tool_calls?.[0]?.args).toEqual(
+      partial,
+    );
+    expect(report.tender.groups.general.attempts[1]?.rawResponse?.tool_calls?.[0]?.args).toEqual(
+      general,
+    );
+    expect(report.tender.groups.general.attempts.map((attempt) => attempt.tokenUsage)).toEqual([
+      { input_tokens: 1000, output_tokens: 500, total_tokens: 1500 },
+      { input_tokens: 1000, output_tokens: 500, total_tokens: 1500 },
+    ]);
+    expect(report.totalEstimatedCostUsd).toBeCloseTo(0.000756);
+  });
+
+  it("keeps two incomplete tender responses bounded and unresolved", async () => {
+    const [tender, supplierDoc] = await documents();
+    const calls = successInvokes(await supplierFacts());
+    const partial = {
+      tenderId: general.tenderId,
+      closingDate: general.closingDate,
+      requiredCurrency: general.requiredCurrency,
+    };
+    calls.generalInvoke.mockResolvedValue(response("extract_tender_general", [partial]));
+    const report = await runTenderAssessment(
+      tender,
+      supplierDoc,
+      calls.generalInvoke,
+      calls.complianceInvoke,
+      calls.supplierInvoke,
+    );
+    expect(calls.generalInvoke).toHaveBeenCalledTimes(2);
+    expect(calls.generalInvoke.mock.calls[1]?.[0][0].text).toContain(
+      "missing siteAccessDate, requiredPracticalCompletionDate",
+    );
+    expect(report.tender.groups.general.attempts).toHaveLength(2);
+    expect(report.tender.groups.general.recovery?.unresolvedFields).toEqual(
+      expect.arrayContaining(["siteAccessDate", "requiredPracticalCompletionDate"]),
+    );
+    expect(report.tender.validation.fields.siteAccessDate?.status).toBe("invalid");
+    expect(report.tender.validation.fields.requiredPracticalCompletionDate?.status).toBe("invalid");
+    expect(report.tender.validation.fields.tenderId?.status).toBe("valid");
+    expect(report.tender.groups.general.attempts.every((attempt) => attempt.rawResponse)).toBe(
+      true,
+    );
+    expect(report.totalEstimatedCostUsd).toBeCloseTo(0.000756);
+  });
+
+  it("feeds back an invalid date format without retrying valid nulls", async () => {
+    const [tender, supplierDoc] = await documents();
+    const calls = successInvokes(await supplierFacts());
+    calls.generalInvoke
+      .mockResolvedValueOnce(
+        response("extract_tender_general", [
+          {
+            ...general,
+            siteAccessDate: { ...general.siteAccessDate, value: "11 January 2027" },
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(response("extract_tender_general", [general]));
+    const corrected = await runTenderAssessment(
+      tender,
+      supplierDoc,
+      calls.generalInvoke,
+      calls.complianceInvoke,
+      calls.supplierInvoke,
+    );
+    expect(calls.generalInvoke.mock.calls[1]?.[0][0].text).toContain("siteAccessDate.value");
+    expect(calls.generalInvoke.mock.calls[1]?.[0][0].text).toContain("Invalid ISO date");
+    expect(corrected.tender.validation.fields.siteAccessDate?.status).toBe("valid");
+
+    const nullableCalls = successInvokes(await supplierFacts());
+    nullableCalls.generalInvoke.mockResolvedValueOnce(
+      response("extract_tender_general", [
+        { ...general, siteAccessDate: null, requiredPracticalCompletionDate: null },
+      ]),
+    );
+    const withNulls = await runTenderAssessment(
+      tender,
+      supplierDoc,
+      nullableCalls.generalInvoke,
+      nullableCalls.complianceInvoke,
+      nullableCalls.supplierInvoke,
+    );
+    expect(nullableCalls.generalInvoke).toHaveBeenCalledOnce();
+    expect(withNulls.tender.groups.general.validation.valid).toBe(true);
+    expect(withNulls.tender.validation.fields.siteAccessDate?.status).toBe("missing");
+    expect(withNulls.tender.validation.fields.requiredPracticalCompletionDate?.status).toBe(
+      "missing",
+    );
   });
 
   it("recovers only cited and schema-valid fields from incomplete tender output", async () => {

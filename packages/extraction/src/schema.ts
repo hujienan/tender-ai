@@ -15,7 +15,13 @@ const insurance = cited(
   z
     .object({
       status: z.enum(["attached", "explicitly_missing", "claimed_only"]),
-      policyId: z.string().min(1).nullable(),
+      policyId: z
+        .string()
+        .min(1)
+        .nullable()
+        .describe(
+          "Explicitly labelled insurance policy or certificate identifier only; a coverage amount is not an identifier. Use JSON null when no identifier is provided.",
+        ),
     })
     .strict(),
 );

@@ -32,7 +32,8 @@ export async function extractValidatedSupplierFacts(
   grounding?: (facts: SupplierFacts) => Record<string, string[]>,
 ) {
   const report = await recoverStructuredExtraction(
-    () => extractSupplierFacts(document, invoke, modelId, promptContext, grounding),
+    (feedback) =>
+      extractSupplierFacts(document, invoke, modelId, promptContext, grounding, feedback),
     SupplierFactsSchema,
     EMPTY_SUPPLIER,
     SUPPLIER_RECOVERY_FIELDS,

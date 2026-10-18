@@ -65,7 +65,7 @@ export async function extractValidatedTenderRequirements(
   },
 ): Promise<TenderExtraction> {
   const general = await recoverStructuredExtraction(
-    () =>
+    (feedback) =>
       extractDocument(
         document,
         commonInstructions + " Extract tender identity, important dates and currency ONLY.",
@@ -83,6 +83,7 @@ export async function extractValidatedTenderRequirements(
         generalInvoke,
         modelId,
         promptContexts?.general,
+        feedback,
       ),
     GeneralRequirementsSchema,
     {
@@ -103,7 +104,7 @@ export async function extractValidatedTenderRequirements(
       ),
   );
   const compliance = await recoverStructuredExtraction(
-    () =>
+    (feedback) =>
       extractDocument(
         document,
         commonInstructions +
@@ -122,6 +123,7 @@ export async function extractValidatedTenderRequirements(
         complianceInvoke,
         modelId,
         promptContexts?.compliance,
+        feedback,
       ),
     ComplianceRequirementsSchema,
     {

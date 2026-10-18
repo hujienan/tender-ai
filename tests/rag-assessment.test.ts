@@ -383,6 +383,10 @@ describe("retrieval-grounded assessment", () => {
       { mode: "rag", embeddingProvider: provider, retrievalStore: store },
     );
     expect(report.tender.extracted.tenderId?.value).toBe("RAG-01");
+    expect(calls.general.mock.calls[1]?.[0]?.[0]?.text).toContain(
+      "missing closingDate, siteAccessDate, requiredPracticalCompletionDate, requiredCurrency",
+    );
+    expect(calls.general.mock.calls[1]?.[0]?.[1]?.text).not.toContain("Tender ID: RAG-02");
     expect(report.tender.validation.fields.tenderId?.status).toBe("valid");
     expect(report.tender.groups.general.recovery?.recoveredFields.tenderId?.attempt).toBe(2);
     expect(report.tender.groups.general.recovery?.fieldErrors.tenderId).toBeUndefined();

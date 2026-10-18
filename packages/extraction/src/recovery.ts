@@ -35,7 +35,7 @@ function withField<T extends object>(base: T, field: string, value: unknown): T 
 }
 
 export async function recoverStructuredExtraction<T extends object>(
-  invokeOnce: () => Promise<ExtractionReport<T>>,
+  invokeOnce: (feedback?: string) => Promise<ExtractionReport<T>>,
   schema: z.ZodType<T>,
   empty: T,
   fields: readonly string[],
@@ -67,7 +67,10 @@ export async function recoverStructuredExtraction<T extends object>(
     };
   }
 
-  const second = await invokeOnce();
+  const feedback = first.attempts.some((attempt) => attempt.rawResponse)
+    ? first.validation.errors.slice(0, 3).join("; ")
+    : undefined;
+  const second = await invokeOnce(feedback);
   const attempts = [...first.attempts, ...second.attempts];
   const recoveredFields: Provenance = {};
   const fieldErrors: Record<string, string[]> = {};

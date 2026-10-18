@@ -100,6 +100,9 @@ describe("structured supplier invocation", () => {
         name: "extract_supplier_facts",
         includeRaw: true,
       });
+      expect(JSON.stringify(structured.mock.calls[0]?.[0])).toContain(
+        "Explicitly labelled insurance policy or certificate identifier only; a coverage amount is not an identifier. Use JSON null when no identifier is provided.",
+      );
       const configured = structured.mock.contexts[0] as ChatBedrockConverse;
       expect(configured.supportsToolChoiceValues).toEqual(["tool"]);
       expect(configured.temperature).toBe(0);
