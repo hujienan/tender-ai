@@ -12,6 +12,7 @@ TenderAI is a TypeScript prototype for reviewing synthetic construction tenders 
 | `packages/comparison` | Apply deterministic compliance rules to validated facts. |
 | `packages/assessment` | Coordinate the three extraction operations and assemble the report. |
 | `packages/indexing` | Chunk PDFs, create Titan embeddings and store them in local PostgreSQL with pgvector. |
+| `packages/retrieval` | Embed a query and search compatible, explicitly selected document chunks by cosine distance. |
 | `packages/evaluation` | Score saved reports against reference answers offline. |
 
 The canonical entry point is [`runTenderAssessment()`](packages/assessment/src/run.ts). Assessment and indexing are separate: the current assessment reads full PDF text and does not query PostgreSQL. See the [architecture](docs/architecture.md) for the dependency graph and data contracts.
@@ -45,7 +46,7 @@ pnpm revalidate <saved-report>
 pnpm evaluate <saved-report>
 ```
 
-`revalidate` rereads the PDFs and recomputes field validity and deterministic findings without a model call. `evaluate` scores a saved current report against `datasets/electrical-installation/reference.json`. Reference answers are reserved for fixture generation, tests and offline evaluation. Assessment, indexing and future retrieval must never load them or receive them in prompts.
+`revalidate` rereads the PDFs and recomputes field validity and deterministic findings without a model call. `evaluate` scores a saved current report against `datasets/electrical-installation/reference.json`. Reference answers are reserved for fixture generation, tests and offline evaluation. Assessment, indexing and retrieval never load them or receive them in prompts or embedding inputs.
 
 ## Document indexing: manual, billable
 
@@ -58,8 +59,19 @@ pnpm index:documents --live tender voltline sparrow arcwell
 
 Compose binds PostgreSQL to `127.0.0.1:54329`; its default password is for local development. The `--live` command may incur Bedrock charges. Titan Text Embeddings V2 (`amazon.titan-embed-text-v2:0`) runs in `ap-southeast-2` with 1,024-dimensional vectors. Page-aware chunks retain exact PDF.js text slices, source offsets and hashes. Unchanged documents skip embedding and database writes.
 
-A previous local smoke test inserted a `tender` row with **mock** embeddings (`mock:offline-smoke`). The current indexer checks embedding model metadata and will replace that row on a live Titan run, but the local database may contain mock vectors until then. Treat this as a separate indexing reliability cleanup before using retrieval; this task does not alter database contents. Concurrent changed-document runs can also duplicate billable embedding calls.
+The four synthetic PDFs have been indexed locally with Titan V2 embeddings (11 chunks as of Milestone 3B). Reindexing changed documents invokes Titan and can incur charges; concurrent changed-document runs can duplicate embedding calls.
+
+## Semantic retrieval: manual, billable
+
+With the local database running and `DATABASE_URL` set as above:
+
+```sh
+pnpm retrieve --live --document voltline --query "public liability insurance certificate" --top-k 3
+pnpm retrieve --live --document tender --document voltline --query "public liability insurance requirements" --top-k 5
+```
+
+Each command makes one Titan V2 query embedding call. Retrieval checks that every requested document is indexed with compatible model, region and dimensions, then uses an exact pgvector cosine-distance search restricted to those document IDs. Results are ranked by ascending distance and contain the original stored text, document, page, offsets and hash. Unknown or incompatible documents fail before the embedding call. `--live` is required; the limit defaults to 5 and can be set from 1 to 50. Retrieval reads the index and does not feed assessment prompts.
 
 ## Current limits
 
-PDF.js does not OCR scans. Source checks use patterns matched to the synthetic documents and do not authenticate insurance certificates. Warranty scope and qualification validity remain human-review topics. Semantic retrieval, retrieval-grounded extraction, LangGraph, LangSmith, an API, a frontend and AWS deployment are not implemented. See the [roadmap](docs/roadmap.md).
+PDF.js does not OCR scans. Source checks use patterns matched to the synthetic documents and do not authenticate insurance certificates. Warranty scope and qualification validity remain human-review topics. Retrieval reports similarity, not factual support; citations still need validation. Retrieval-grounded extraction, LangGraph, LangSmith, an API, a frontend and AWS deployment are not implemented. See the [roadmap](docs/roadmap.md).

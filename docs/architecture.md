@@ -11,6 +11,7 @@ flowchart LR
   PDF --> IDX[packages/indexing]
   BED --> IDX
   IDX --> PG[(Local PostgreSQL + pgvector)]
+  PG --> RET[packages/retrieval]
   REPORT[Saved report] --> EVAL[packages/evaluation: offline]
   REF[reference.json: offline only] --> EVAL
 ```
@@ -49,7 +50,7 @@ The orchestrator runs general requirements, compliance requirements and supplier
 
 Citations must point to the correct document and page, and quotations must occur in PDF.js extracted text with only reasonable whitespace normalization. Deterministic checks additionally verify straightforward values such as dates, price, duration, warranty months, insurance status and labelled policy IDs. A quote alone does not establish every qualitative claim or certificate authenticity. Unsupported facts remain invalid; the pipeline does not rewrite model output to make it pass.
 
-Only fixture generation, tests and offline evaluation read `datasets/electrical-installation/reference.json`. Runtime assessment and indexing never import it, and reference answers must not enter prompts, vector indexes or inference-time rules.
+Only fixture generation, tests and offline evaluation read `datasets/electrical-installation/reference.json`. Runtime assessment, indexing and retrieval never import it, and reference answers must not enter prompts, vector indexes, query embeddings or inference-time rules.
 
 ### Model and cost boundaries
 
@@ -67,8 +68,20 @@ flowchart LR
 
 `packages/indexing` preserves stable IDs, one-based page numbers, zero-based chunk indexes, exact PDF.js text slices, UTF-16 offsets and SHA-256 hashes. Its provider interface isolates embedding calls from chunking and storage. The Titan provider uses `amazon.titan-embed-text-v2:0`, `ap-southeast-2` and 1,024 dimensions. Matching content hash, chunker version and embedding metadata skip model calls and writes. A changed document replaces its chunks in one transaction; failed embedding or storage leaves the prior document intact.
 
-The index has no retrieval query or connection to assessment prompts. The local database may retain a `tender` row from an earlier smoke test with `mock:offline-smoke` vectors. Model metadata prevents it being mistaken for a Titan-indexed document during ingestion, but retrieval should explicitly exclude mock vectors until a separate reliability fix removes them. No database contents are changed by this cleanup. Concurrent indexing of the same changed document can duplicate billable embedding calls.
+The four synthetic PDFs were indexed locally with real Titan V2 embeddings (11 chunks as of Milestone 3B). Concurrent indexing of the same changed document can duplicate billable embedding calls.
+
+## Retrieval flow
+
+```mermaid
+flowchart LR
+  Q[Natural-language query + explicit document IDs] --> V[Validate inputs and indexed metadata]
+  V --> E[Titan V2 query embedding]
+  E --> S[pgvector exact cosine search]
+  S --> O[Ranked original passages + provenance]
+```
+
+`packages/retrieval` checks each requested document before embedding the query. It requires `amazon.titan-embed-text-v2:0`, `ap-southeast-2` and 1,024 dimensions, and rejects missing documents or documents without compatible chunks. A parameterized SQL query applies the document allowlist and embedding metadata filters to both `source_documents` and `document_chunks`; `embedding <=> query_vector` sorts by ascending cosine distance with a bounded limit. No approximate vector index is used. Results retain source name, one-based page, zero-based chunk index, exact stored text, UTF-16 offsets and content hash. Retrieval is read-only and separate from assessment.
 
 ## Scope and next steps
 
-The CLI uses synthetic PDFs only. PDF.js does not OCR scans, and the evidence checks are tuned to their wording. There is no semantic retrieval, retrieval-grounded extraction, LangGraph, LangSmith, API, reviewer interface or AWS deployment. Milestone 3B can add retrieval against the local index while keeping current assessment prompts and validation unchanged. A later step can integrate retrieved passages at the assessment boundary.
+The CLI uses synthetic PDFs only. PDF.js does not OCR scans, and the evidence checks are tuned to their wording. Similarity-ranked passages are candidates for evidence, not proof of a claim. Retrieval does not feed assessment prompts. There is no retrieval-grounded extraction, LangGraph, LangSmith, API, reviewer interface or AWS deployment. A later step can integrate retrieved passages at the assessment boundary.

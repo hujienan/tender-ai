@@ -11,6 +11,7 @@
     "assess": "node --experimental-strip-types scripts/assess.ts",
     "db:init": "node --experimental-strip-types scripts/db-init.ts",
     "index:documents": "node --experimental-strip-types scripts/index-documents.ts",
+    "retrieve": "node --experimental-strip-types scripts/retrieve.ts",
     "revalidate": "node --experimental-strip-types scripts/revalidate.ts",
     "evaluate": "node --experimental-strip-types scripts/evaluate.ts",
     "typecheck": "tsc --noEmit",
