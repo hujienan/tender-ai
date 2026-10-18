@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
+.aws/
 node_modules/
 .pnpm-store/
 coverage/
@@ -9,6 +10,7 @@ build/
 .next/
 .turbo/
 tmp/
+pgdata/
 *.tsbuildinfo
 .eslintcache
 *.log

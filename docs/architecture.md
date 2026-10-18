@@ -40,7 +40,7 @@ flowchart LR
   D --> O[Schema version 1 report]
 ```
 
-The orchestrator runs general requirements, compliance requirements and supplier facts in that order. Each operation receives only its own document. Full mode uses complete PDF text. RAG mode checks both indexed documents before any model call, then runs two general, two compliance and three supplier queries with topK 2 per query. Tender queries search only tender chunks; supplier queries search only the selected supplier. Returned chunks are checked against exact PDF slices, deduplicated within each operation and labelled with document ID, page and chunk index. Nova Lite or Nova Pro is selected for all three extraction calls in `ap-southeast-2`. A failed invocation or incomplete structured response permits one retry for that operation. A complete response with unsupported evidence does not automatically retry. Recovered candidates need valid structure and their own supporting citations; conflicting supported values remain unresolved. Insurance certificate status and policy ID are checked separately.
+The orchestrator runs general requirements, compliance requirements and supplier facts in that order. Each operation receives only its own document. Full mode uses complete PDF text. RAG mode checks both indexed documents before any model call, then runs two general, two compliance and three supplier queries with topK 2 per query. Tender queries search only tender chunks; supplier queries search only the selected supplier. Returned chunks are checked against exact PDF slices, deduplicated within each operation and labelled with document ID, page and chunk index. Nova Lite or Nova Pro is selected for all three extraction calls in `ap-southeast-2`. A failed invocation or structurally incomplete response permits one additional attempt. When the first response is available, the retry includes its structural validation errors and requests a complete object; a complete response with unsupported evidence does not automatically retry. Recovered candidates need valid structure and their own supporting citations; conflicting supported values remain unresolved. Insurance certificate status and policy ID are checked separately.
 
 `compareValidatedCompliance()` produces only `late_completion`, `conflicting_dates` and `missing_evidence` when their specific tender and supplier inputs validate. Other invalid fields do not suppress supported findings. Unsupported dependencies require review. Warranty terms and qualification validity are review candidates, not automatic findings.
 
@@ -74,7 +74,7 @@ flowchart LR
 
 `packages/indexing` preserves stable IDs, one-based page numbers, zero-based chunk indexes, exact PDF.js text slices, UTF-16 offsets and SHA-256 hashes. Its provider interface isolates embedding calls from chunking and storage. The Titan provider uses `amazon.titan-embed-text-v2:0`, `ap-southeast-2` and 1,024 dimensions. Matching content hash, chunker version and embedding metadata skip model calls and writes. A changed document replaces its chunks in one transaction; failed embedding or storage leaves the prior document intact.
 
-The four synthetic PDFs were indexed locally with real Titan V2 embeddings (11 chunks as of Milestone 3B). Concurrent indexing of the same changed document can duplicate billable embedding calls.
+The four synthetic PDFs are allowlisted for manual indexing. Concurrent indexing of the same changed document can duplicate billable embedding calls.
 
 ## Retrieval flow
 
