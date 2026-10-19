@@ -86,14 +86,15 @@ Recheck a saved report against the original PDFs, then compare it with the synth
 ```sh
 pnpm revalidate path/to/saved-report.json
 pnpm evaluate path/to/saved-report.json
+pnpm --silent evaluate:retrieval path/to/saved-rag-report.json
 ```
 
-`revalidate` also checks recorded retrieval provenance for RAG reports. `evaluate` scores all eight tender and fifteen supplier values, with value accuracy, evidence status and compliance findings reported separately. Its small synthetic fixture is not a comprehensive performance benchmark.
+`revalidate` also checks recorded retrieval provenance for RAG reports. `evaluate` scores all eight tender and fifteen supplier values, with value accuracy, evidence status and compliance findings reported separately. `evaluate:retrieval` reconstructs ranked chunks and Nova's three retrieval contexts from a saved RAG report and the committed PDFs. It reports query Recall@1/2, evidence hit rate, operation coverage, and field-level extraction observations. It also accepts `-` for stdin. These offline commands need no AWS credentials, Docker, or PostgreSQL. See [retrieval metric definitions](docs/architecture.md#offline-rag-retrieval-evaluation).
 
 ## Status and limits
 
-**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; comprehensive field scoring on the synthetic fixture.
+**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; comprehensive field scoring and offline RAG retrieval evaluation on the synthetic fixture.
 
-**Planned:** retrieval and compliance metrics in Evals 3D-B, LangSmith tracing and experiments, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
+**Planned:** compliance precision/recall and repeated experiment comparison, LangSmith tracing, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
 
 The fixtures are synthetic and few in number. PDF.js does not OCR scanned pages. Evidence rules reflect current document patterns and do not authenticate insurance certificates. Retrieval can miss relevant passages, and no RAG accuracy advantage has been demonstrated. Report cost estimates cover Nova attempts, **not Titan embeddings**, and are not billed amounts. There is no production deployment or automated supplier award decision.

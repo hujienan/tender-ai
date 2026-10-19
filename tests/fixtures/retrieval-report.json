@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "mode": "rag",
+  "tender": {
+    "extracted": null,
+    "validation": {
+      "valid": false
+    }
+  },
+  "supplier": {
+    "documentId": "voltline",
+    "extracted": null,
+    "validation": {
+      "valid": false
+    }
+  },
+  "assessment": {
+    "status": "requires_review",
+    "findings": []
+  },
+  "retrieval": {
+    "queries": [
+      {
+        "group": "general",
+        "query": "Tender ID, closing date and site access date",
+        "documentIds": [
+          "tender"
+        ],
+        "chunks": [
+          {
+            "documentId": "tender",
+            "pageNumber": 2,
+            "chunkIndex": 1
+          },
+          {
+            "documentId": "tender",
+            "pageNumber": 1,
+            "chunkIndex": 0
+          }
+        ]
+      },
+      {
+        "group": "general",
+        "query": "Required practical completion date and tender currency",
+        "documentIds": [
+          "tender"
+        ],
+        "chunks": [
+          {
+            "documentId": "tender",
+            "pageNumber": 1,
+            "chunkIndex": 0
+          }
+        ]
+      },
+      {
+        "group": "compliance",
+        "query": "Public liability and workers compensation insurance certificate requirements",
+        "documentIds": [
+          "tender"
+        ],
+        "chunks": [
+          {
+            "documentId": "tender",
+            "pageNumber": 2,
+            "chunkIndex": 1
+          }
+        ]
+      },
+      {
+        "group": "compliance",
+        "query": "Minimum comparable project references required",
+        "documentIds": [
+          "tender"
+        ],
+        "chunks": [
+          {
+            "documentId": "tender",
+            "pageNumber": 2,
+            "chunkIndex": 1
+          }
+        ]
+      },
+      {
+        "group": "supplier",
+        "query": "Supplier name, ex-GST price, currency, duration and commercial completion date",
+        "documentIds": [
+          "voltline"
+        ],
+        "chunks": [
+          {
+            "documentId": "voltline",
+            "pageNumber": 1,
+            "chunkIndex": 0
+          },
+          {
+            "documentId": "voltline",
+            "pageNumber": 3,
+            "chunkIndex": 2
+          }
+        ]
+      },
+      {
+        "group": "supplier",
+        "query": "Programme practical completion milestones and warranty conditions",
+        "documentIds": [
+          "voltline"
+        ],
+        "chunks": [
+          {
+            "documentId": "voltline",
+            "pageNumber": 1,
+            "chunkIndex": 0
+          },
+          {
+            "documentId": "voltline",
+            "pageNumber": 2,
+            "chunkIndex": 1
+          }
+        ]
+      },
+      {
+        "group": "supplier",
+        "query": "Contractor licence, supervisor qualification, comparable references and insurance certificates policy IDs",
+        "documentIds": [
+          "voltline"
+        ],
+        "chunks": [
+          {
+            "documentId": "voltline",
+            "pageNumber": 2,
+            "chunkIndex": 1
+          },
+          {
+            "documentId": "voltline",
+            "pageNumber": 3,
+            "chunkIndex": 2
+          }
+        ]
+      }
+    ]
+  }
+}

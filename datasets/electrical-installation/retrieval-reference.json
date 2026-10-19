@@ -1,0 +1,719 @@
+{
+  "datasetId": "synthetic-electrical-2026-01",
+  "chunkerVersion": "page-text-v1-1200",
+  "sourceContentSha256": {
+    "tender": "fcc75e85f5cb64b488eebbb80501538a769d8c132cade7a52b7968fb2d344c55",
+    "voltline": "3f0a1f0da7ac30ee6e02e71c21461644fe10ae590d863783340b0874ff0ea6e4",
+    "sparrow": "9ceb6828e7ce02b35224b4843554c2e6384882c4839131e07780f62f1ff33fd0",
+    "arcwell": "13c57f3ca3b0220190543ca789f955ede4989d6e04fbb99fedf3f5431c7657a5"
+  },
+  "queries": [
+    {
+      "group": "general",
+      "query": "Tender ID, closing date and site access date",
+      "fields": [
+        "tenderId",
+        "closingDate",
+        "siteAccessDate"
+      ]
+    },
+    {
+      "group": "general",
+      "query": "Required practical completion date and tender currency",
+      "fields": [
+        "requiredPracticalCompletionDate",
+        "requiredCurrency"
+      ]
+    },
+    {
+      "group": "compliance",
+      "query": "Public liability and workers compensation insurance certificate requirements",
+      "fields": [
+        "publicLiabilityCertificateRequired",
+        "workersCompensationCertificateRequired"
+      ]
+    },
+    {
+      "group": "compliance",
+      "query": "Minimum comparable project references required",
+      "fields": [
+        "minimumComparableReferences"
+      ]
+    },
+    {
+      "group": "supplier",
+      "query": "Supplier name, ex-GST price, currency, duration and commercial completion date",
+      "fields": [
+        "supplierName",
+        "priceExGst",
+        "currency",
+        "proposedDurationWeeks",
+        "commercialCompletionDate"
+      ]
+    },
+    {
+      "group": "supplier",
+      "query": "Programme practical completion milestones and warranty conditions",
+      "fields": [
+        "programmeCompletionDate",
+        "warranty.months",
+        "warranty.conditions"
+      ]
+    },
+    {
+      "group": "supplier",
+      "query": "Contractor licence, supervisor qualification, comparable references and insurance certificates policy IDs",
+      "fields": [
+        "contractorLicence",
+        "supervisorQualification",
+        "comparableReferences",
+        "insuranceEvidence.publicLiability.status",
+        "insuranceEvidence.publicLiability.policyId",
+        "insuranceEvidence.workersCompensation.status",
+        "insuranceEvidence.workersCompensation.policyId"
+      ]
+    }
+  ],
+  "fields": {
+    "tender": {
+      "tenderId": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Tender ID: NQTC-ELEC-2026-01."
+            }
+          ]
+        ]
+      },
+      "closingDate": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Tender closes: 13 November 2026 at 4:00 pm AWST."
+            }
+          ]
+        ]
+      },
+      "siteAccessDate": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Anticipated site access: 11 January 2027."
+            }
+          ]
+        ]
+      },
+      "requiredPracticalCompletionDate": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Required practical completion: no later than 28 May 2027."
+            }
+          ]
+        ]
+      },
+      "requiredCurrency": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Submit one ex-GST lump sum in AUD and a week-by-week programme."
+            }
+          ]
+        ]
+      },
+      "minimumComparableReferences": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Provide two comparable project references completed in the last five years."
+            }
+          ]
+        ]
+      },
+      "publicLiabilityCertificateRequired": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Attach current public liability and workers compensation insurance certificates."
+            }
+          ]
+        ]
+      },
+      "workersCompensationCertificateRequired": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Attach current public liability and workers compensation insurance certificates."
+            }
+          ]
+        ]
+      }
+    },
+    "voltline": {
+      "supplierName": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Supplier: Voltline Projects Pty Ltd (fictional)."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Insured: Voltline Projects Pty Ltd (fictional)."
+            }
+          ]
+        ]
+      },
+      "priceExGst": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings."
+            }
+          ]
+        ]
+      },
+      "currency": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Ex-GST lump sum: AUD 1,184,000; includes testing and as-built drawings."
+            }
+          ]
+        ]
+      },
+      "proposedDurationWeeks": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Proposed duration: 18 weeks from site access on 11 January 2027."
+            }
+          ]
+        ]
+      },
+      "warranty.months": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Workmanship warranty: 24 months from practical completion."
+            }
+          ]
+        ]
+      },
+      "warranty.conditions": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Workmanship warranty: 24 months from practical completion."
+            }
+          ]
+        ]
+      },
+      "programmeCompletionDate": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Programme milestone practical completion: 17 May 2027."
+            }
+          ]
+        ]
+      },
+      "commercialCompletionDate": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Commercial offer completion date: 21 May 2027."
+            }
+          ]
+        ]
+      },
+      "contractorLicence": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Electrical contractor licence: SYN-EC-101 (fictional training identifier)."
+            }
+          ]
+        ]
+      },
+      "supervisorQualification": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Supervisor qualification: Diploma of Electrical Engineering (2021)."
+            }
+          ]
+        ]
+      },
+      "comparableReferences": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Comparable works: Eastbank Library upgrade (2024); Harbor Annex fit-out (2025)."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.publicLiability.status": {
+        "state": "explicit_absence",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Public liability cover: AUD 20 million; certificate not attached."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Public liability certificate: not included in this proposal."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.publicLiability.policyId": {
+        "state": "not_stated",
+        "reason": "No public liability policy identifier is stated."
+      },
+      "insuranceEvidence.workersCompensation.status": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Workers compensation certificate: attached as a declared copy."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Workers compensation attachment SYNTHETIC CERTIFICATE COPY"
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.workersCompensation.policyId": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 3,
+              "quote": "Cover: workers compensation; synthetic policy SYN-WC-101."
+            }
+          ]
+        ]
+      }
+    },
+    "sparrow": {
+      "supplierName": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Supplier: Sparrow Electrical Services Pty Ltd (fictional)."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Insured: Sparrow Electrical Services Pty Ltd (fictional)."
+            }
+          ]
+        ]
+      },
+      "priceExGst": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Ex-GST lump sum: AUD 1,327,500; no exclusions listed."
+            }
+          ]
+        ]
+      },
+      "currency": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Ex-GST lump sum: AUD 1,327,500; no exclusions listed."
+            }
+          ]
+        ]
+      },
+      "proposedDurationWeeks": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Proposed duration: 16 weeks from site access on 11 January 2027."
+            }
+          ]
+        ]
+      },
+      "warranty.months": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Warranty: 36 months, subject to manufacturer terms and exclusions to be agreed."
+            }
+          ]
+        ]
+      },
+      "warranty.conditions": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Warranty: 36 months, subject to manufacturer terms and exclusions to be agreed."
+            }
+          ]
+        ]
+      },
+      "programmeCompletionDate": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Target practical completion: 3 May 2027."
+            }
+          ]
+        ]
+      },
+      "commercialCompletionDate": {
+        "state": "not_stated",
+        "reason": "No separate commercial completion date is stated."
+      },
+      "contractorLicence": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Electrical contractor licence: SYN-EC-202 (fictional training identifier)."
+            }
+          ]
+        ]
+      },
+      "supervisorQualification": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Supervisor qualification: Certificate IV in Electrical Instrumentation (2020)."
+            }
+          ]
+        ]
+      },
+      "comparableReferences": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Comparable works: Westhaven Campus (2023); Bayview Clinic (2025)."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.publicLiability.status": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Public liability certificate: attached; AUD 20 million cover to 31 December 2027."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Insurance attachments SYNTHETIC CERTIFICATE COPIES"
+            },
+            {
+              "page": 3,
+              "quote": "Public liability: synthetic policy SYN-PL-202; AUD 20 million."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.publicLiability.policyId": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 3,
+              "quote": "Public liability: synthetic policy SYN-PL-202; AUD 20 million."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.workersCompensation.status": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Workers compensation certificate: attached; valid to 31 December 2027."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Insurance attachments SYNTHETIC CERTIFICATE COPIES"
+            },
+            {
+              "page": 3,
+              "quote": "Workers compensation: synthetic policy SYN-WC-202."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.workersCompensation.policyId": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 3,
+              "quote": "Workers compensation: synthetic policy SYN-WC-202."
+            }
+          ]
+        ]
+      }
+    },
+    "arcwell": {
+      "supplierName": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Supplier: Arcwell Infrastructure Pty Ltd (fictional)."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Insured: Arcwell Infrastructure Pty Ltd (fictional)."
+            }
+          ]
+        ]
+      },
+      "priceExGst": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Ex-GST lump sum: AUD 1,099,000; excludes after-hours shutdown costs."
+            }
+          ]
+        ]
+      },
+      "currency": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Ex-GST lump sum: AUD 1,099,000; excludes after-hours shutdown costs."
+            }
+          ]
+        ]
+      },
+      "proposedDurationWeeks": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Proposed duration: 22 weeks from site access on 11 January 2027."
+            }
+          ]
+        ]
+      },
+      "warranty.months": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Workmanship warranty: 12 months from practical completion."
+            }
+          ]
+        ]
+      },
+      "warranty.conditions": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Workmanship warranty: 12 months from practical completion."
+            }
+          ]
+        ]
+      },
+      "programmeCompletionDate": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 1,
+              "quote": "Target practical completion: 14 June 2027."
+            }
+          ]
+        ]
+      },
+      "commercialCompletionDate": {
+        "state": "not_stated",
+        "reason": "No separate commercial completion date is stated."
+      },
+      "contractorLicence": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Electrical contractor licence: SYN-EC-303 (fictional training identifier)."
+            }
+          ]
+        ]
+      },
+      "supervisorQualification": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Supervisor qualification: Certificate III in Electrotechnology (2017)."
+            }
+          ]
+        ]
+      },
+      "comparableReferences": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Comparable works: Kingside Depot (2022); Elm Training Hub (2024)."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.publicLiability.status": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Public liability certificate: attached; AUD 20 million cover to 31 December 2027."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Insurance attachments SYNTHETIC CERTIFICATE COPIES"
+            },
+            {
+              "page": 3,
+              "quote": "Public liability: synthetic policy SYN-PL-303; AUD 20 million."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.publicLiability.policyId": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 3,
+              "quote": "Public liability: synthetic policy SYN-PL-303; AUD 20 million."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.workersCompensation.status": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 2,
+              "quote": "Workers compensation certificate: attached; valid to 31 December 2027."
+            }
+          ],
+          [
+            {
+              "page": 3,
+              "quote": "Insurance attachments SYNTHETIC CERTIFICATE COPIES"
+            },
+            {
+              "page": 3,
+              "quote": "Workers compensation: synthetic policy SYN-WC-303."
+            }
+          ]
+        ]
+      },
+      "insuranceEvidence.workersCompensation.policyId": {
+        "state": "supported",
+        "evidence": [
+          [
+            {
+              "page": 3,
+              "quote": "Workers compensation: synthetic policy SYN-WC-303."
+            }
+          ]
+        ]
+      }
+    }
+  }
+}
