@@ -8,7 +8,7 @@ TenderAI is an applied AI engineering prototype for reviewing construction tende
 - Full-document assessment and **experimental RAG assessment**. RAG grounds each citation in both the original PDF and passages retrieved for that extraction operation.
 - Separate PDF indexing with Titan Text Embeddings V2, followed by semantic search in local PostgreSQL with pgvector.
 - Deterministic checks for completion dates and mandatory insurance evidence, with unsupported fields flagged for review.
-- Offline revalidation and basic comparison with synthetic reference answers. Reports retain raw model responses, token usage, latency, recovery provenance, and estimated Nova inference cost.
+- Offline revalidation and field-by-field evaluation against synthetic reference answers. Reports retain raw model responses, token usage, latency, recovery provenance, and estimated Nova inference cost.
 
 ## Architecture
 
@@ -88,12 +88,12 @@ pnpm revalidate path/to/saved-report.json
 pnpm evaluate path/to/saved-report.json
 ```
 
-`revalidate` also checks recorded retrieval provenance for RAG reports. `evaluate` is a basic fixture-based check, not a comprehensive performance benchmark.
+`revalidate` also checks recorded retrieval provenance for RAG reports. `evaluate` scores all eight tender and fifteen supplier values, with value accuracy, evidence status and compliance findings reported separately. Its small synthetic fixture is not a comprehensive performance benchmark.
 
 ## Status and limits
 
-**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; basic offline evaluation.
+**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; comprehensive field scoring on the synthetic fixture.
 
-**Planned:** comprehensive Evals V2, LangSmith tracing and experiments, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
+**Planned:** retrieval and compliance metrics in Evals 3D-B, LangSmith tracing and experiments, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
 
 The fixtures are synthetic and few in number. PDF.js does not OCR scanned pages. Evidence rules reflect current document patterns and do not authenticate insurance certificates. Retrieval can miss relevant passages, and no RAG accuracy advantage has been demonstrated. Report cost estimates cover Nova attempts, **not Titan embeddings**, and are not billed amounts. There is no production deployment or automated supplier award decision.

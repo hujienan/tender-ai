@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "mode": "full",
+  "tender": { "extracted": null, "validation": { "valid": false } },
+  "supplier": { "documentId": "voltline", "extracted": null, "validation": { "valid": false } },
+  "assessment": { "status": "requires_review", "findings": [] }
+}

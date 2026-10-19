@@ -10,13 +10,13 @@ TenderAI is an applied AI engineering prototype built on synthetic procurement d
 - **Document indexing:** Page-aware chunks, Titan Text Embeddings V2, and idempotent local PostgreSQL/pgvector storage.
 - **Semantic retrieval:** Document-scoped cosine search with original passage provenance.
 - **Experimental RAG assessment:** Separate tender-general, tender-compliance, and supplier retrieval contexts; citations checked against both retrieved passages and original PDFs.
-- **Basic offline evaluation:** Saved-report revalidation and fixture-based fact and finding comparison. The current reference set is small and does not measure retrieval recall or comprehensive field accuracy.
+- **Offline extraction evaluation (Milestone 3D-A):** Saved-report revalidation, complete tender and supplier field scoring, explicit null handling, separate evidence status, and expected finding comparison. The reference set remains small.
 
 ## Upcoming milestones
 
-### Milestone 3D — Evals V2
+### Milestone 3D-B — Retrieval and compliance evaluation
 
-Score tender and supplier fields comprehensively, including null and missing-value correctness. Measure retrieval Recall@K, evidence coverage, compliance precision and recall, and repeated experiment comparisons.
+Measure retrieval Recall@K, evidence coverage, compliance precision and recall, and repeated experiment comparisons.
 
 ### Milestone 4 — LangSmith
 

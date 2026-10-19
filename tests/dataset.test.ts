@@ -62,6 +62,56 @@ describe("synthetic electrical tender", () => {
     expect(new Set(dataset.answers.map((answer) => answer.id)).size).toBe(dataset.answers.length);
   });
 
+  it("keeps explicit extraction answers aligned with the synthetic source text and cited answers", () => {
+    const expected = dataset.expectedExtraction;
+    const answer = (id: string) => dataset.answers.find((entry) => entry.id === id)?.value;
+    const tenderText = documentById
+      .get("tender")!
+      .pages.flatMap((page) => page.lines)
+      .join(" ");
+    expect(tenderText).toContain(expected.tender.tenderId);
+    expect(expected.tender.closingDate).toBe(answer("tender.close"));
+    expect(expected.tender.siteAccessDate).toBe(answer("tender.access"));
+    expect(expected.tender.requiredPracticalCompletionDate).toBe(answer("tender.completion"));
+    expect(tenderText).toContain(`ex-GST lump sum in ${expected.tender.requiredCurrency}`);
+    expect(expected.tender.minimumComparableReferences).toBe(2);
+    expect(expected.tender.publicLiabilityCertificateRequired).toBe(true);
+    expect(expected.tender.workersCompensationCertificateRequired).toBe(true);
+
+    for (const supplier of dataset.suppliers) {
+      const values = expected.suppliers[supplier.id as keyof typeof expected.suppliers];
+      const sourceText = documentById
+        .get(supplier.id)!
+        .pages.flatMap((page) => page.lines)
+        .join(" ");
+      expect(sourceText).toContain(values.supplierName);
+      expect(values.currency).toBe(expected.tender.requiredCurrency);
+      expect(values.priceExGst).toBe(answer(`${supplier.id}.price`));
+      expect(values.proposedDurationWeeks).toBe(answer(`${supplier.id}.duration`));
+      expect(values.programmeCompletionDate).toBe(answer(`${supplier.id}.programmeCompletion`));
+      expect(values.commercialCompletionDate).toBe(
+        answer(`${supplier.id}.commercialCompletion`) ?? null,
+      );
+      expect(values.warranty.months).toBe(answer(`${supplier.id}.warranty`));
+      expect(sourceText).toContain(values.warranty.conditions);
+      expect(values.contractorLicence).toBe(answer(`${supplier.id}.licence`));
+      expect(values.supervisorQualification).toContain(
+        String(answer(`${supplier.id}.supervisorQualification`)),
+      );
+      expect(values.comparableReferences).toHaveLength(Number(answer(`${supplier.id}.references`)));
+      for (const project of values.comparableReferences) expect(sourceText).toContain(project);
+      for (const insurance of Object.values(values.insuranceEvidence)) {
+        if (insurance.policyId) expect(sourceText).toContain(insurance.policyId);
+      }
+      expect(sourceText).toContain(
+        values.insuranceEvidence.publicLiability.status === "explicitly_missing"
+          ? "certificate not attached"
+          : "Public liability certificate: attached",
+      );
+      expect(sourceText).toContain("Workers compensation certificate: attached");
+    }
+  });
+
   it("keeps the planned dates consistent with each stated duration", () => {
     const access = dataset.answers.find((answer) => answer.id === "tender.access")?.value;
     if (typeof access !== "string") throw new Error("Missing site access date");

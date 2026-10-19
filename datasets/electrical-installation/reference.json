@@ -39,6 +39,68 @@
     { "id": "sparrow", "name": "Sparrow Electrical Services Pty Ltd", "documentId": "sparrow" },
     { "id": "arcwell", "name": "Arcwell Infrastructure Pty Ltd", "documentId": "arcwell" }
   ],
+  "expectedExtraction": {
+    "tender": {
+      "tenderId": "NQTC-ELEC-2026-01",
+      "closingDate": "2026-11-13",
+      "siteAccessDate": "2027-01-11",
+      "requiredPracticalCompletionDate": "2027-05-28",
+      "requiredCurrency": "AUD",
+      "minimumComparableReferences": 2,
+      "publicLiabilityCertificateRequired": true,
+      "workersCompensationCertificateRequired": true
+    },
+    "suppliers": {
+      "voltline": {
+        "supplierName": "Voltline Projects Pty Ltd",
+        "priceExGst": 1184000,
+        "currency": "AUD",
+        "proposedDurationWeeks": 18,
+        "warranty": { "months": 24, "conditions": "from practical completion" },
+        "programmeCompletionDate": "2027-05-17",
+        "commercialCompletionDate": "2027-05-21",
+        "contractorLicence": "SYN-EC-101",
+        "supervisorQualification": "Diploma of Electrical Engineering (2021)",
+        "comparableReferences": ["Eastbank Library upgrade (2024)", "Harbor Annex fit-out (2025)"],
+        "insuranceEvidence": {
+          "publicLiability": { "status": "explicitly_missing", "policyId": null },
+          "workersCompensation": { "status": "attached", "policyId": "SYN-WC-101" }
+        }
+      },
+      "sparrow": {
+        "supplierName": "Sparrow Electrical Services Pty Ltd",
+        "priceExGst": 1327500,
+        "currency": "AUD",
+        "proposedDurationWeeks": 16,
+        "warranty": { "months": 36, "conditions": "subject to manufacturer terms and exclusions to be agreed" },
+        "programmeCompletionDate": "2027-05-03",
+        "commercialCompletionDate": null,
+        "contractorLicence": "SYN-EC-202",
+        "supervisorQualification": "Certificate IV in Electrical Instrumentation (2020)",
+        "comparableReferences": ["Westhaven Campus (2023)", "Bayview Clinic (2025)"],
+        "insuranceEvidence": {
+          "publicLiability": { "status": "attached", "policyId": "SYN-PL-202" },
+          "workersCompensation": { "status": "attached", "policyId": "SYN-WC-202" }
+        }
+      },
+      "arcwell": {
+        "supplierName": "Arcwell Infrastructure Pty Ltd",
+        "priceExGst": 1099000,
+        "currency": "AUD",
+        "proposedDurationWeeks": 22,
+        "warranty": { "months": 12, "conditions": "from practical completion" },
+        "programmeCompletionDate": "2027-06-14",
+        "commercialCompletionDate": null,
+        "contractorLicence": "SYN-EC-303",
+        "supervisorQualification": "Certificate III in Electrotechnology (2017)",
+        "comparableReferences": ["Kingside Depot (2022)", "Elm Training Hub (2024)"],
+        "insuranceEvidence": {
+          "publicLiability": { "status": "attached", "policyId": "SYN-PL-303" },
+          "workersCompensation": { "status": "attached", "policyId": "SYN-WC-303" }
+        }
+      }
+    }
+  },
   "documents": [
     {
       "id": "tender",

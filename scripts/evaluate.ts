@@ -9,16 +9,33 @@ import {
 } from "../packages/extraction/src/schema.ts";
 
 const file = process.argv[2];
+const recovery = z
+  .object({ fieldErrors: z.record(z.string(), z.array(z.string())).optional() })
+  .passthrough();
+const validation = z
+  .object({
+    valid: z.boolean(),
+    fields: z
+      .record(
+        z.string(),
+        z.object({ status: z.string(), errors: z.array(z.string()).optional() }).passthrough(),
+      )
+      .optional(),
+  })
+  .passthrough();
+const group = z.object({ extracted: z.unknown(), recovery: recovery.optional() }).passthrough();
 const AssessmentSchema = z.object({
   schemaVersion: z.literal(1),
   tender: z.object({
     extracted: TenderRequirementsSchema.nullable(),
-    validation: z.object({ valid: z.boolean() }).passthrough(),
+    validation,
+    groups: z.object({ general: group, compliance: group }).optional(),
   }),
   supplier: z.object({
     documentId: z.string(),
     extracted: SupplierFactsSchema.nullable(),
-    validation: z.object({ valid: z.boolean() }).passthrough(),
+    validation,
+    recovery: recovery.optional(),
   }),
   assessment: z.object({
     status: z.string(),
