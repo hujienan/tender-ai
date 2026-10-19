@@ -456,7 +456,7 @@ describe("retrieval-grounded assessment", () => {
     for (const command of ["revalidate", "evaluate"]) {
       const result = spawnSync(
         process.execPath,
-        ["--experimental-strip-types", join(root, "scripts", command + ".ts"), "/dev/stdin"],
+        ["--experimental-strip-types", join(root, "scripts", command + ".ts"), "-"],
         { input: JSON.stringify(report), encoding: "utf8" },
       );
       expect(result.status, result.stderr).toBe(0);
@@ -495,7 +495,7 @@ describe("retrieval-grounded assessment", () => {
     saved.tender.groups.compliance.validation.valid = true;
     const revalidated = spawnSync(
       process.execPath,
-      ["--experimental-strip-types", join(root, "scripts/revalidate.ts"), "/dev/stdin"],
+      ["--experimental-strip-types", join(root, "scripts/revalidate.ts"), "-"],
       { input: JSON.stringify(saved), encoding: "utf8" },
     );
     expect(revalidated.status, revalidated.stderr).toBe(0);
@@ -510,7 +510,7 @@ describe("retrieval-grounded assessment", () => {
     );
     const evaluated = spawnSync(
       process.execPath,
-      ["--experimental-strip-types", join(root, "scripts/evaluate.ts"), "/dev/stdin"],
+      ["--experimental-strip-types", join(root, "scripts/evaluate.ts"), "-"],
       { input: revalidated.stdout, encoding: "utf8" },
     );
     expect(evaluated.status, evaluated.stderr).toBe(0);
@@ -559,7 +559,7 @@ describe("retrieval-grounded assessment", () => {
       saved.tender.groups[group].validation.valid = true;
       const revalidated = spawnSync(
         process.execPath,
-        ["--experimental-strip-types", join(root, "scripts/revalidate.ts"), "/dev/stdin"],
+        ["--experimental-strip-types", join(root, "scripts/revalidate.ts"), "-"],
         { input: JSON.stringify(saved), encoding: "utf8" },
       );
       expect(revalidated.status, revalidated.stderr).toBe(0);

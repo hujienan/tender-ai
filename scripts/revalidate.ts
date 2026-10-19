@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -74,11 +75,13 @@ const savedSchema = z
   .passthrough();
 
 if (!file || process.argv.length > 3) {
-  console.error("Usage: pnpm revalidate <saved-report>");
+  console.error("Usage: pnpm revalidate <saved-report|->");
   process.exitCode = 1;
 } else
   try {
-    const saved = savedSchema.parse(JSON.parse(await readFile(file, "utf8")));
+    const saved = savedSchema.parse(
+      JSON.parse(file === "-" ? readFileSync(0, "utf8") : await readFile(file, "utf8")),
+    );
     const tenderPdf = await extractPdf(
       join(root, "datasets/electrical-installation/pdfs/tender-request.pdf"),
       "tender",

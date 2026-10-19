@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import reference from "../datasets/electrical-installation/reference.json" with { type: "json" };
@@ -26,11 +27,13 @@ const AssessmentSchema = z.object({
 });
 
 if (!file || process.argv.length > 3) {
-  console.error("Usage: pnpm evaluate <saved-report>");
+  console.error("Usage: pnpm evaluate <saved-report|->");
   process.exitCode = 1;
 } else {
   try {
-    const saved: unknown = JSON.parse(await readFile(file, "utf8"));
+    const saved: unknown = JSON.parse(
+      file === "-" ? readFileSync(0, "utf8") : await readFile(file, "utf8"),
+    );
     console.log(
       JSON.stringify(evaluateAssessment(AssessmentSchema.parse(saved), reference), null, 2),
     );
