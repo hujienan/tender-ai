@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "mode": "full",
+  "tender": {},
+  "supplier": { "documentId": "voltline" },
+  "assessment": {
+    "status": "requires_review",
+    "findings": [
+      { "type": "conflicting_dates" },
+      { "type": "missing_evidence" }
+    ],
+    "reviewCandidates": [
+      { "topic": "warranty_terms" },
+      { "topic": "qualification_validity" }
+    ]
+  }
+}

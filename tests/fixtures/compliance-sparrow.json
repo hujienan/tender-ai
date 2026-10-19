@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "mode": "rag",
+  "tender": {},
+  "supplier": { "documentId": "sparrow" },
+  "assessment": {
+    "status": "requires_review",
+    "findings": [],
+    "reviewCandidates": [
+      { "topic": "warranty_terms" },
+      { "topic": "qualification_validity" }
+    ]
+  }
+}

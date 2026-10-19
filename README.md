@@ -87,14 +87,15 @@ Recheck a saved report against the original PDFs, then compare it with the synth
 pnpm revalidate path/to/saved-report.json
 pnpm evaluate path/to/saved-report.json
 pnpm --silent evaluate:retrieval path/to/saved-rag-report.json
+pnpm --silent evaluate:compliance path/to/voltline-report.json path/to/sparrow-report.json path/to/arcwell-report.json
 ```
 
-`revalidate` also checks recorded retrieval provenance for RAG reports. `evaluate` scores all eight tender and fifteen supplier values, with value accuracy, evidence status and compliance findings reported separately. `evaluate:retrieval` reconstructs ranked chunks and Nova's three retrieval contexts from a saved RAG report and the committed PDFs. It reports query Recall@1/2, evidence hit rate, operation coverage, and field-level extraction observations. It also accepts `-` for stdin. These offline commands need no AWS credentials, Docker, or PostgreSQL. See [retrieval metric definitions](docs/architecture.md#offline-rag-retrieval-evaluation).
+`revalidate` also checks recorded retrieval provenance for RAG reports. `evaluate` scores all eight tender and fifteen supplier values, with value accuracy, evidence status and compliance findings reported separately. `evaluate:retrieval` reconstructs ranked chunks and Nova's three retrieval contexts from a saved RAG report and the committed PDFs. It reports query Recall@1/2, evidence hit rate, operation coverage, and field-level extraction observations. `evaluate:compliance` scores the three supported deterministic finding types per supplier, per type and across all supplied reports. Supply at most one report per supplier per run; a single report produces a partial-coverage score. The evaluation commands accept `-` for stdin. These offline commands need no AWS credentials, Docker, or PostgreSQL. See [evaluation metric definitions](docs/architecture.md#offline-compliance-evaluation).
 
 ## Status and limits
 
-**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; comprehensive field scoring and offline RAG retrieval evaluation on the synthetic fixture.
+**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; offline extraction, RAG retrieval and compliance evaluation on synthetic fixtures.
 
-**Planned:** compliance precision/recall and repeated experiment comparison, LangSmith tracing, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
+**Planned:** repeated experiment comparison, LangSmith tracing, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
 
 The fixtures are synthetic and few in number. PDF.js does not OCR scanned pages. Evidence rules reflect current document patterns and do not authenticate insurance certificates. Retrieval can miss relevant passages, and no RAG accuracy advantage has been demonstrated. Report cost estimates cover Nova attempts, **not Titan embeddings**, and are not billed amounts. There is no production deployment or automated supplier award decision.

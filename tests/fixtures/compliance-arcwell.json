@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "mode": "full",
+  "tender": {},
+  "supplier": { "documentId": "arcwell" },
+  "assessment": {
+    "status": "requires_review",
+    "findings": [{ "type": "late_completion" }],
+    "reviewCandidates": [{ "topic": "qualification_validity" }]
+  }
+}

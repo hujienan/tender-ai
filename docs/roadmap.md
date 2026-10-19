@@ -12,12 +12,13 @@ TenderAI is an applied AI engineering prototype built on synthetic procurement d
 - **Experimental RAG assessment:** Separate tender-general, tender-compliance, and supplier retrieval contexts; citations checked against both retrieved passages and original PDFs.
 - **Offline extraction evaluation (Milestone 3D-A):** Saved-report revalidation, complete tender and supplier field scoring, explicit null handling, separate evidence status, and expected finding comparison. The reference set remains small.
 - **Offline RAG retrieval evaluation (Milestone 3D-B):** Source-checked retrieval annotations, query Recall@1/2, evidence hit rate, operation-level context coverage and extraction-stage observations from saved reports.
+- **Offline compliance evaluation (Milestone 3D-C):** Per-supplier and per-type confusion counts and micro precision, recall and F1 for the three supported deterministic findings. Qualitative issues, review topics and evidence validity remain separate.
 
 ## Upcoming milestones
 
-### Milestone 3D-C — Compliance and experiment evaluation
+### Milestone 3D-D — Repeated experiment comparison
 
-Measure compliance precision and recall, then compare repeated full-document and RAG experiments. The current small fixture does not establish a general RAG advantage.
+Compare repeated full-document and RAG experiments. The current small fixture does not establish a general RAG advantage.
 
 ### Milestone 4 — LangSmith
 
