@@ -6,7 +6,7 @@ export const SUPPORTED_FINDING_TYPES = [
   "conflicting_dates",
 ] as const;
 type FindingType = (typeof SUPPORTED_FINDING_TYPES)[number];
-type Counts = { tp: number; fp: number; fn: number; tn: number };
+export type Counts = { tp: number; fp: number; fn: number; tn: number };
 type Reference = {
   suppliers: { id: string; documentId: string }[];
   issues: { id?: string; subject: string; type: string }[];
@@ -33,7 +33,7 @@ const reportSchema = z
   })
   .passthrough();
 
-function metrics({ tp, fp, fn, tn }: Counts) {
+export function metrics({ tp, fp, fn, tn }: Counts) {
   const precision = tp + fp ? tp / (tp + fp) : null;
   const recall = tp + fn ? tp / (tp + fn) : null;
   const f1 =
@@ -45,7 +45,7 @@ function metrics({ tp, fp, fn, tn }: Counts) {
   return { tp, fp, fn, tn, precision, recall, f1 };
 }
 
-function sumCounts(values: readonly Counts[]): Counts {
+export function sumCounts(values: readonly Counts[]): Counts {
   return values.reduce(
     (total, value) => ({
       tp: total.tp + value.tp,

@@ -16,6 +16,7 @@
     "evaluate": "node --experimental-strip-types scripts/evaluate.ts",
     "evaluate:retrieval": "node --experimental-strip-types scripts/evaluate-retrieval.ts",
     "evaluate:compliance": "node --experimental-strip-types scripts/evaluate-compliance.ts",
+    "evaluate:experiments": "node --experimental-strip-types scripts/evaluate-experiments.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write \"{apps,packages,scripts,tests}/**/*.{ts,tsx}\" eslint.config.mjs .prettierrc.json",

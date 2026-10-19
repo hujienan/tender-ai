@@ -88,14 +88,31 @@ pnpm revalidate path/to/saved-report.json
 pnpm evaluate path/to/saved-report.json
 pnpm --silent evaluate:retrieval path/to/saved-rag-report.json
 pnpm --silent evaluate:compliance path/to/voltline-report.json path/to/sparrow-report.json path/to/arcwell-report.json
+pnpm --silent evaluate:experiments path/to/experiment.json
 ```
 
 `revalidate` also checks recorded retrieval provenance for RAG reports. `evaluate` scores all eight tender and fifteen supplier values, with value accuracy, evidence status and compliance findings reported separately. `evaluate:retrieval` reconstructs ranked chunks and Nova's three retrieval contexts from a saved RAG report and the committed PDFs. It reports query Recall@1/2, evidence hit rate, operation coverage, and field-level extraction observations. `evaluate:compliance` scores the three supported deterministic finding types per supplier, per type and across all supplied reports. Supply at most one report per supplier per run; a single report produces a partial-coverage score. The evaluation commands accept `-` for stdin. These offline commands need no AWS credentials, Docker, or PostgreSQL. See [evaluation metric definitions](docs/architecture.md#offline-compliance-evaluation).
 
+`evaluate:experiments` groups saved assessment runs by model ID and full/RAG mode. Create a manifest beside the report files; paths are relative to that manifest. `pairId` is optional and must be the same for deliberately paired runs of the same supplier under two configurations:
+
+```json
+{
+  "experimentId": "nova-comparison-001",
+  "runs": [
+    { "runId": "lite-full-voltline-01", "report": "reports/lite-full-voltline-01.json", "pairId": "voltline-round-01" },
+    { "runId": "lite-rag-voltline-01", "report": "reports/lite-rag-voltline-01.json", "pairId": "voltline-round-01" }
+  ]
+}
+```
+
+Optional `expectedModelId`, `expectedMode` and `expectedSupplierId` fields assert the identity stored in each report. Commit the manifest together with its report files if CI needs to run it; ignored `tmp/extractions/` reports are not CI fixtures. This command only reads local JSON and synthetic PDFs. See [experiment methodology](docs/architecture.md#offline-repeated-experiment-evaluation).
+
+Each run must reference a distinct saved report. The command rejects duplicate canonical paths, including symlink aliases, and identical report contents under different paths. When a report records both aggregate tender attempts and general/compliance group attempts, their ordered histories must agree.
+
 ## Status and limits
 
-**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; offline extraction, RAG retrieval and compliance evaluation on synthetic fixtures.
+**Implemented:** structured extraction and evidence validation; document indexing and semantic retrieval; experimental RAG assessment; deterministic compliance findings; offline extraction, RAG retrieval, compliance and repeated experiment evaluation on synthetic fixtures.
 
-**Planned:** repeated experiment comparison, LangSmith tracing, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
+**Planned:** LangSmith tracing, LangGraph workflow orchestration, an API and reviewer interface, and AWS deployment. See the [roadmap](docs/roadmap.md).
 
 The fixtures are synthetic and few in number. PDF.js does not OCR scanned pages. Evidence rules reflect current document patterns and do not authenticate insurance certificates. Retrieval can miss relevant passages, and no RAG accuracy advantage has been demonstrated. Report cost estimates cover Nova attempts, **not Titan embeddings**, and are not billed amounts. There is no production deployment or automated supplier award decision.
