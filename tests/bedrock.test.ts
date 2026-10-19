@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { HumanMessage } from "@langchain/core/messages";
+import { describe, expect, it, vi } from "vitest";
 import {
   BEDROCK_MODEL_ID,
   BEDROCK_REGION,
@@ -6,6 +7,7 @@ import {
   createBedrockClient,
 } from "../packages/bedrock/src/client.ts";
 import { estimateBedrockCost } from "../packages/bedrock/src/pricing.ts";
+import { ComplianceRequirementsSchema, toolSchema } from "../packages/extraction/src/schema.ts";
 
 describe("Bedrock model configuration and pricing", () => {
   it("configures direct Nova Lite and Nova Pro in Sydney without explicit credentials", () => {
@@ -15,6 +17,42 @@ describe("Bedrock model configuration and pricing", () => {
     const pro = createBedrockClient(4096, NOVA_PRO_MODEL_ID);
     expect(pro.model).toBe(NOVA_PRO_MODEL_ID);
     expect(pro.region).toBe(BEDROCK_REGION);
+    expect(lite.additionalModelRequestFields).toBeUndefined();
+    expect(pro.additionalModelRequestFields).toEqual({ inferenceConfig: { topK: 1 } });
+  });
+
+  it("sends the compliance tool with forced choice and Nova Pro greedy decoding", async () => {
+    const pro = createBedrockClient(4096, NOVA_PRO_MODEL_ID);
+    pro.temperature = 0;
+    pro.supportsToolChoiceValues = ["tool"];
+    const send = vi.spyOn(pro.client, "send").mockRejectedValue(new Error("mock stop"));
+    await expect(
+      pro
+        .withStructuredOutput(toolSchema(ComplianceRequirementsSchema), {
+          name: "extract_tender_compliance",
+          includeRaw: true,
+        })
+        .invoke([new HumanMessage("synthetic")]),
+    ).rejects.toThrow("mock stop");
+    expect(send).toHaveBeenCalledOnce();
+    const input = send.mock.calls[0]?.[0].input;
+    expect(input).toMatchObject({
+      modelId: NOVA_PRO_MODEL_ID,
+      inferenceConfig: { maxTokens: 4096, temperature: 0 },
+      additionalModelRequestFields: { inferenceConfig: { topK: 1 } },
+      serviceTier: { type: "default" },
+      toolConfig: {
+        toolChoice: { tool: { name: "extract_tender_compliance" } },
+        tools: [
+          {
+            toolSpec: {
+              name: "extract_tender_compliance",
+              inputSchema: { json: toolSchema(ComplianceRequirementsSchema) },
+            },
+          },
+        ],
+      },
+    });
   });
 
   it("uses each direct model's configured rate and actual token counts", () => {

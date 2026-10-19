@@ -4,6 +4,7 @@ import { ChatBedrockConverse } from "@langchain/aws";
 import { AIMessage } from "@langchain/core/messages";
 import { describe, expect, it, vi } from "vitest";
 import { extractSupplierFacts } from "../packages/extraction/src/facts.ts";
+import { NOVA_PRO_MODEL_ID } from "../packages/bedrock/src/client.ts";
 import { SupplierFactsToolSchema } from "../packages/extraction/src/schema.ts";
 import { extractPdf } from "../packages/pdf/src/extract.ts";
 import { voltlineFacts } from "./fixtures.ts";
@@ -108,8 +109,61 @@ describe("structured supplier invocation", () => {
       expect(configured.temperature).toBe(0);
       expect(Object.keys(SupplierFactsToolSchema)).toEqual(["type", "properties", "required"]);
       expect(invoke).toHaveBeenCalledOnce();
+      await extractSupplierFacts(
+        { documentId: "voltline", pages: [{ page: 1, text: "synthetic" }] },
+        undefined,
+        NOVA_PRO_MODEL_ID,
+      );
+      const pro = structured.mock.contexts[1] as ChatBedrockConverse;
+      expect(pro.temperature).toBe(0);
+      expect(pro.maxTokens).toBe(4096);
+      expect(pro.additionalModelRequestFields).toEqual({ inferenceConfig: { topK: 1 } });
     } finally {
       structured.mockRestore();
     }
+  });
+
+  it("retains only safe AWS exception details on a failed invocation", async () => {
+    const failure = Object.assign(
+      new Error("Model produced invalid sequence as part of ToolUse."),
+      {
+        name: "ModelErrorException",
+        $metadata: { httpStatusCode: 424, requestId: "aws-request-123" },
+        credentials: "must-not-be-saved",
+        request: { prompt: "must-not-be-saved" },
+      },
+    );
+    const report = await extractSupplierFacts(
+      { documentId: "voltline", pages: [{ page: 1, text: "synthetic" }] },
+      vi.fn().mockRejectedValue(failure),
+      NOVA_PRO_MODEL_ID,
+    );
+    expect(report.validation.valid).toBe(false);
+    expect(report.attempts[0]?.invocationError).toEqual({
+      name: "ModelErrorException",
+      httpStatusCode: 424,
+      requestId: "aws-request-123",
+    });
+    expect(report.attempts[0]?.tokenUsage).toBeNull();
+    expect(report.attempts[0]?.rawResponse).toBeNull();
+    expect(report.totalEstimatedCostUsd).toBeNull();
+    expect(JSON.stringify(report)).not.toContain("must-not-be-saved");
+
+    const wrapped = await extractSupplierFacts(
+      { documentId: "voltline", pages: [{ page: 1, text: "synthetic" }] },
+      vi.fn().mockRejectedValue(
+        new Error("Bedrock failed", {
+          cause: {
+            name: "ModelErrorException",
+            $metadata: { httpStatusCode: 424, requestId: "wrapped-request" },
+          },
+        }),
+      ),
+    );
+    expect(wrapped.attempts[0]?.invocationError).toEqual({
+      name: "ModelErrorException",
+      httpStatusCode: 424,
+      requestId: "wrapped-request",
+    });
   });
 });

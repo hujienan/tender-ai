@@ -14,5 +14,8 @@ export function createBedrockClient(
     region: BEDROCK_REGION,
     serviceTier: "default",
     maxTokens,
+    ...(modelId === NOVA_PRO_MODEL_ID
+      ? { additionalModelRequestFields: { inferenceConfig: { topK: 1 } } }
+      : {}),
   });
 }

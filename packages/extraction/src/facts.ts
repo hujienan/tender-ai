@@ -35,6 +35,11 @@ export type ExtractionReport<T> = {
     costEstimate: ReturnType<typeof estimateBedrockCost> | null;
     costError: string | null;
     error: string | null;
+    invocationError?: {
+      name: string | null;
+      httpStatusCode: number | null;
+      requestId: string | null;
+    };
   }[];
   totalEstimatedCostUsd: number | null;
   knownEstimatedCostUsd?: number;
@@ -119,6 +124,14 @@ export async function extractDocument<T>(
     )(messages);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Model invocation failed.";
+    const source = error && typeof error === "object" ? (error as Record<string, unknown>) : {};
+    const cause =
+      source.cause && typeof source.cause === "object"
+        ? (source.cause as Record<string, unknown>)
+        : {};
+    const metadata = source.$metadata ?? cause.$metadata;
+    const aws =
+      metadata && typeof metadata === "object" ? (metadata as Record<string, unknown>) : {};
     return {
       documentId: document.documentId,
       extracted: null,
@@ -135,6 +148,16 @@ export async function extractDocument<T>(
           costEstimate: null,
           costError: "Model response and token usage are unavailable.",
           error: message,
+          invocationError: {
+            name:
+              source.name === "Error" && typeof cause.name === "string"
+                ? cause.name
+                : typeof source.name === "string"
+                  ? source.name
+                  : null,
+            httpStatusCode: typeof aws.httpStatusCode === "number" ? aws.httpStatusCode : null,
+            requestId: typeof aws.requestId === "string" ? aws.requestId : null,
+          },
         },
       ],
       totalEstimatedCostUsd: null,
